@@ -36,7 +36,7 @@ const SidebarItem = ({ item, pageName, setPageName, sidebarHover }: any) => {
         <Link
           href={item.route}
           onClick={handleClick}
-          className={`${isItemActive ? "!font-bold text-primary" : ""} relative flex h-12 items-center gap-3 rounded-sm font-light text-base text-bodydark2 transition duration-300 ease-in-out hover:text-primary ${sidebarHover ? "px-5" : "justify-left flex pl-5"}`}
+          className={`${isItemActive ? "!font-semibold text-primary" : ""} relative flex h-12 items-center gap-3 rounded-sm font-light text-sm text-bodydark2 transition duration-300 ease-in-out hover:text-primary ${sidebarHover ? "px-5" : "justify-left flex pl-5"}`}
         >
           <span>{item.icon}</span>
           {isItemActive && (

@@ -13,6 +13,7 @@ const config: Config = {
     fontFamily: {
       satoshi: ["Satoshi", "sans-serif"],
       mercosul: ["Mercosul"],
+      poppins: ["Poppins"],
     },
     screens: {
       "2xsm": "375px",
