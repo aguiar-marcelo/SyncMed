@@ -14,6 +14,8 @@ const config: Config = {
       satoshi: ["Satoshi", "sans-serif"],
       mercosul: ["Mercosul"],
       poppins: ["Poppins"],
+      inter: ["Inter"],
+      montserrat: ["Montserrat"],
     },
     screens: {
       "2xsm": "375px",
