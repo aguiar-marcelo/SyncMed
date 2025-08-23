@@ -1,5 +1,15 @@
 "use client";
-import { CirclePlus, Pencil, ChevronUp, ChevronDown } from "lucide-react";
+import {
+  CirclePlus,
+  Pencil,
+  ChevronUp,
+  ChevronDown,
+  Stethoscope,
+  Search,
+  User,
+  User2,
+  Calendar,
+} from "lucide-react";
 import { format, parse, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useMemo, useState } from "react";
@@ -9,7 +19,7 @@ import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
 type Sched = {
-  date: string; // "dd-MM-yyyy"
+  date: string;
   hour: string;
   professional: { id: number; name: string; specialty: string };
   patient: { id: number; name: string };
@@ -42,41 +52,46 @@ const test: Sched[] = [
     patient: { id: 1, name: "Pedro dos Santos" },
     canceled: false,
   },
+  {
+    date: "22-08-2025",
+    hour: "08:00",
+    professional: {
+      id: 1,
+      name: "Alessandra Barbosa",
+      specialty: "Ginecologia",
+    },
+    patient: { id: 1, name: "Maria Silva" },
+    canceled: false,
+  },
 ];
 
 export default function Schedule() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // estado principal
   const [schedullings, setSchedullings] = useState<Sched[]>(test);
   const [search, setSearch] = useState<string>("");
 
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // === CONVERSÃO DE DATAS ===
   const toDate = (s: string) => parse(s, "dd-MM-yyyy", new Date());
 
-  // data selecionada no calendário
   const [selected, setSelected] = useState<Date | undefined>(() =>
     toDate(test[0].date),
   );
 
-  // índice rápido de dias que possuem registros
   const daysWithRecordsSet = useMemo(() => {
     const set = new Set<string>();
     schedullings.forEach((s) => set.add(format(toDate(s.date), "yyyy-MM-dd")));
     return set;
   }, [schedullings]);
 
-  // records do dia selecionado (lista/tabela à esquerda usa isso para filtrar)
   const filteredBySelected = useMemo(() => {
     if (!selected) return schedullings;
     return schedullings.filter((s) => isSameDay(toDate(s.date), selected));
   }, [schedullings, selected]);
 
-  // ordenação
   const getNestedValue = (obj: any, path: string) =>
     path.split(".").reduce((acc, key) => acc?.[key], obj);
 
@@ -106,13 +121,11 @@ export default function Schedule() {
     if (sortDirection === "desc") setSortColumn(null);
   };
 
-  // === MODIFIERS: marca os dias que têm registros ===
   const modifiers = {
     hasRecords: (day: Date) =>
       daysWithRecordsSet.has(format(day, "yyyy-MM-dd")),
   };
 
-  // classes extras (usando Tailwind) para o "pontinho" sob o número do dia
   const modifiersClassNames = {
     hasRecords:
       "relative after:content-[''] after:w-1.5 after:h-1.5 after:rounded-full after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-[-5] after:bg-primary",
@@ -130,17 +143,14 @@ export default function Schedule() {
 
         <div className="mt-2 text-black dark:text-white">
           <div className="flex items-start justify-between gap-5">
-            <div className="w-full rounded-2xl bg-[#f5f5f5] dark:bg-[#0b0b12]">
+            <div className="w-full rounded-2xl bg-[#f5f5f5] pb-3 dark:bg-[#0b0b12]">
               <div className="flex items-center justify-between px-5 pt-4">
-                <h3 className="text-sm font-medium">
-                  {selected && format(selected, "dd/MM/yyyy")}
-                </h3>
-                <input
-                  className="rounded-md border border-black/10 bg-white px-3 py-1 text-sm text-black outline-none dark:bg-white dark:text-black"
-                  placeholder="Buscar por paciente, profissional ou especialidade"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+                <span className="flex items-center gap-2">
+                  <Calendar size={13} />
+                  <h3 className="text-sm font-medium">
+                    {selected && format(selected, "dd/MM/yyyy")}
+                  </h3>
+                </span>
               </div>
 
               {loading ? (
@@ -148,90 +158,96 @@ export default function Schedule() {
                   <ThreeDot color="#3C50E0" speedPlus={2} />
                 </div>
               ) : (
-                <table className="w-full table-auto border-separate border-spacing-y-2 px-5 pb-4 text-sm">
-                  <thead>
-                    <tr className="text-left">
-                      {[
-                        { key: "", label: "", style: "pl-5" },
-                        { key: "patient.name", label: "Paciente" },
-                        { key: "professional.name", label: "Profissional" },
-                        {
-                          key: "professional.specialty",
-                          label: "Especialidade",
-                        },
-                      ].map(({ key, label, style }) => (
-                        <th key={key} onClick={() => handleSort(key)}>
-                          <span
-                            className={`flex min-w-30 cursor-pointer text-xs font-normal text-black dark:text-white ${style || ""}`}
+                <div className="max-h-[78vh] overflow-y-auto text-sm [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 [&::-webkit-scrollbar]:w-2">
+                  <table className="w-full table-auto border-separate border-spacing-y-2 px-5 pb-4 text-sm">
+                    <thead className="sticky top-0 z-10 bg-[#f5f5f5] dark:bg-[#11121d]">
+                      <tr className="text-left">
+                        {[
+                          { key: "hour", label: "", style: "pl-5" },
+                          { key: "patient.name", label: "Paciente" },
+                          { key: "professional.name", label: "Profissional" },
+                          {
+                            key: "professional.specialty",
+                            label: "Especialidade",
+                          },
+                        ].map(({ key, label, style }) => (
+                          <th
+                            key={key}
+                            onClick={() => handleSort(key)}
+                            className="py-2"
                           >
-                            {label}
-                            {sortColumn === key &&
-                              (sortDirection === "asc" ? (
-                                <ChevronUp size={20} />
-                              ) : (
-                                <ChevronDown size={20} />
-                              ))}
-                          </span>
-                        </th>
-                      ))}
-                      <th className="w-[40px] py-3 text-black dark:text-white"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedSchedullings
-                      .filter(
-                        (u) =>
-                          u.patient.name
-                            .toLowerCase()
-                            .includes(search.toLowerCase()) ||
-                          u.professional.name
-                            .toLowerCase()
-                            .includes(search.toLowerCase()) ||
-                          u.professional.specialty
-                            .toLowerCase()
-                            .includes(search.toLowerCase()),
-                      )
-                      .map((s, i: number) => (
-                        <tr
-                          key={"scheduling" + i}
-                          className="bg-white dark:bg-[#11121d]"
-                        >
-                          <td className="w-20 rounded-l-xl py-2 pl-5 md:pl-5">
-                            <h5 className="font-medium text-black dark:text-white">
-                              {s.hour}
-                            </h5>
-                          </td>
-                          <td className="py-2">
-                            <p className="text-black dark:text-white">
-                              {s.patient.name}
-                            </p>
-                          </td>
-                          <td className="py-2">
-                            <p className="text-black dark:text-white">
-                              {s.professional.name}
-                            </p>
-                          </td>
-                          <td className="py-2">
-                            <p className="text-black dark:text-white">
-                              {s.professional.specialty}
-                            </p>
-                          </td>
-                          <td className="rounded-r-xl py-2 pr-4">
-                            <div className="flex justify-end text-right">
-                              <button className="p-1 hover:text-primary">
-                                <Pencil size={20} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
+                            <span
+                              className={`flex min-w-30 cursor-pointer text-xs font-normal text-black dark:text-white ${style || ""}`}
+                            >
+                              {label}
+                              {sortColumn === key &&
+                                (sortDirection === "asc" ? (
+                                  <ChevronUp size={17} />
+                                ) : (
+                                  <ChevronDown size={17} />
+                                ))}
+                            </span>
+                          </th>
+                        ))}
+                        <th className="w-[40px] py-3 text-black dark:text-white"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedSchedullings
+                        .filter(
+                          (u) =>
+                            u.patient.name
+                              .toLowerCase()
+                              .includes(search.toLowerCase()) ||
+                            u.professional.name
+                              .toLowerCase()
+                              .includes(search.toLowerCase()) ||
+                            u.professional.specialty
+                              .toLowerCase()
+                              .includes(search.toLowerCase()),
+                        )
+                        .map((s, i: number) => (
+                          <tr
+                            key={"scheduling" + i}
+                            className="bg-white dark:bg-[#11121d]"
+                          >
+                            <td className="w-20 rounded-l-xl py-2 pl-5 md:pl-5">
+                              <h5 className="font-medium text-black dark:text-white">
+                                {s.hour}
+                              </h5>
+                            </td>
+                            <td className="py-2">
+                              <p className="text-black dark:text-white">
+                                {s.patient.name}
+                              </p>
+                            </td>
+                            <td className="py-2">
+                              <p className="text-black dark:text-white">
+                                {s.professional.name}
+                              </p>
+                            </td>
+                            <td className="py-2">
+                              <p className="flex items-center gap-1 font-semibold text-[#5e5eff]">
+                                <Stethoscope size={14} />
+                                {s.professional.specialty}
+                              </p>
+                            </td>
+                            <td className="rounded-r-xl py-2 pr-4">
+                              <div className="flex justify-end text-right">
+                                <button className="p-1 hover:text-primary">
+                                  <Pencil size={20} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
-
-            <div className="rounded-2xl bg-[#020326] px-4 py-3 text-white">
-              <div className="w-68 mx-auto rounded-2xl bg-[#1c1b3d] px-2 pb-2">
+            <div className="rounded-2xl bg-[#020326] px-4 py-3 pb-5 text-white">
+              <div className="w-68 mx-auto rounded-2xl bg-white/10 px-2 pb-2">
                 <DayPicker
                   mode="single"
                   locale={ptBR}
@@ -255,12 +271,45 @@ export default function Schedule() {
                   modifiers={modifiers}
                   modifiersClassNames={modifiersClassNames}
                 />
-                <div className="ml-4 mt-2 flex items-center gap-2 text-xs text-gray-300">
+                <div className="ml-1 mt-1 flex items-center gap-2 text-[10px] text-gray-300">
                   <span className="inline-block h-2 w-2 rounded-full bg-primary" />{" "}
                   Dias com agendamentos
                 </div>
               </div>
-              <span>Profissionais</span>
+              <div className="font-montserrat mt-5 font-semibold">
+                Profissionais
+              </div>
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">
+                  <Search size={13} className="opacity-60" />
+                </div>
+                <input
+                  type="text"
+                  id="input-group-1"
+                  className="mt-2 block w-full rounded-full border-gray-300 bg-white/10 p-2.5 ps-10 text-sm text-white focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                  placeholder="Pesquisar..."
+                />
+              </div>
+
+              <div className="mt-4 max-h-60 overflow-y-auto text-sm [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 [&::-webkit-scrollbar]:w-2">
+                {Array.from({ length: 5 }).map((p, i) => (
+                  <button
+                    key={"professional" + i}
+                    className="mb-5 flex w-full items-center gap-3 pl-1"
+                  >
+                    <User2
+                      size={38}
+                      className="rounded-full border-2 border-[#5e5eff] bg-gray-200 text-gray-500"
+                    />
+                    <div className="text-[12px]">
+                      <div>Robert Knove</div>
+                      <div className="mt-[-2px] text-left text-[11px] opacity-50">
+                        Cardiologista
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
