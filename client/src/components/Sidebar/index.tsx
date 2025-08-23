@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -93,29 +93,58 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
   const [sidebarHover, setSidebarHover] = useState<boolean>(false);
 
+  const isExpanded = sidebarOpen || sidebarHover;
+
+  const [showExpandedLogo, setShowExpandedLogo] = useState(false);
+
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | null = null;
+
+    if (isExpanded) {
+      t = setTimeout(() => setShowExpandedLogo(true), 100); 
+    } else {
+      setShowExpandedLogo(false);
+    }
+
+    return () => {
+      if (t) clearTimeout(t);
+    };
+  }, [isExpanded]);
+
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>
       <aside
         onMouseEnter={() => setSidebarHover(true)}
         onMouseLeave={() => setSidebarHover(false)}
-        className={`text-shadow-stone-800 fixed left-0 top-0 z-99 flex h-screen flex-col overflow-hidden rounded-r-2xl bg-[#fafafa] text-black shadow-6 shadow-slate-200 duration-300 ease-linear dark:bg-boxdark lg:translate-x-0 ${
-          sidebarOpen ? "w-65 translate-x-0" : "-translate-x-full"
-        } ${sidebarHover ? "w-45" : "w-15"}`}
+        className={`text-shadow-stone-800 fixed left-0 top-0 z-99 flex h-screen flex-col overflow-hidden rounded-r-2xl bg-[#fafafa] text-black shadow-6 shadow-slate-200 duration-300 ease-linear dark:bg-boxdark lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} ${sidebarHover ? "w-45" : "w-15"} ${sidebarOpen ? "w-65" : ""} `}
       >
         <div className="flex h-17 items-center justify-center py-1 pt-2">
           <Link href="/">
-            <Image
-              className="transition delay-300 duration-300 ease-in-out"
-              width={sidebarOpen || sidebarHover ? 107 : 30}
-              height={sidebarOpen || sidebarHover ? 22 : 22}
-              src={
-                sidebarOpen || sidebarHover
-                  ? "/images/logo-roxo.png"
-                  : "/images/logo-roxo-simples.png"
-              }
-              alt="Logo roxo"
-              priority
-            />
+            <div
+              className="relative h-10 overflow-hidden transition-[width] duration-300 ease-in-out"
+              style={{ width: isExpanded ? 107 : 40 }}
+            >
+              <Image
+                src="/images/logo-roxo.png"
+                alt="Logo roxo"
+                width={107}
+                height={22}
+                priority
+                className={`absolute left-0 top-0 h-[35px] w-auto transition-opacity duration-300 ease-in-out ${
+                  showExpandedLogo ? "opacity-100" : "opacity-0"
+                }`}
+              />
+              <Image
+                src="/images/logo-roxo-simples.png"
+                alt="Logo roxo compacto"
+                width={60}
+                height={42}
+                priority
+                className={`absolute left-0 top-0 h-[35px] w-auto transition-opacity duration-300 ease-in-out ${
+                  showExpandedLogo ? "opacity-0" : "opacity-100"
+                }`}
+              />
+            </div>
           </Link>
 
           <button
@@ -138,23 +167,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </svg>
           </button>
         </div>
-
         <div className="no-scrollbar flex flex-col duration-200 ease-linear">
-          <nav className={`mt-5 py-4`}>
+          <nav className="mt-5 py-4">
             {menuGroups.map((group, groupIndex) => (
               <div key={groupIndex}>
                 <ul className="mb-6 flex flex-col gap-2">
-                  {group.menuItems.map((menuItem, menuIndex) => {
-                    return (
-                      <SidebarItem
-                        key={menuIndex}
-                        item={menuItem}
-                        pageName={pageName}
-                        setPageName={setPageName}
-                        sidebarHover={sidebarHover}
-                      />
-                    );
-                  })}
+                  {group.menuItems.map((menuItem, menuIndex) => (
+                    <SidebarItem
+                      key={menuIndex}
+                      item={menuItem}
+                      pageName={pageName}
+                      setPageName={setPageName}
+                      sidebarHover={sidebarHover}
+                    />
+                  ))}
                 </ul>
               </div>
             ))}
