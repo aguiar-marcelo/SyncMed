@@ -59,7 +59,7 @@ const menuGroups = [
           </svg>
         ),
         label: "Pacientes",
-        route: "/patient",
+        route: "/patients",
       },
       {
         icon: (

@@ -6,7 +6,6 @@ import {
   ChevronDown,
   Stethoscope,
   Search,
-  User,
   User2,
   Calendar,
 } from "lucide-react";
@@ -135,7 +134,7 @@ export default function Schedule() {
     <div className="grid grid-cols-1 gap-9">
       <div className="flex flex-col gap-5">
         <TitlePage pageName="Agenda">
-          <button className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-1 text-[0.7rem] text-white">
+          <button className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-1 text-[0.7rem] text-white hover:bg-opacity-90">
             <CirclePlus size={14} />
             Criar Agendamento
           </button>
@@ -276,7 +275,7 @@ export default function Schedule() {
                   Dias com agendamentos
                 </div>
               </div>
-              <div className="font-montserrat mt-5 font-semibold">
+              <div className="mt-5 font-montserrat font-semibold">
                 Profissionais
               </div>
               <div className="relative">
