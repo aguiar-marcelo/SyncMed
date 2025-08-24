@@ -7,30 +7,26 @@ import { format, parse } from "date-fns";
 import DatePicker from "../DatePickerField";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
 
-export default function EditPatient({
-  editPatient,
+export default function EditProfessional({
+  editProfessional,
   goBack,
 }: {
-  editPatient: any;
+  editProfessional: any;
   goBack: () => void;
 }) {
-  const [name, setName] = useState<string>(editPatient.name);
-  const [cpf, setCpf] = useState<string>(editPatient.cpf);
-  const [email, setEmail] = useState<string>(editPatient.email);
-  const [contact, setContact] = useState<string>(editPatient.contact);
-  const [secundaryContact, setSecundaryContact] = useState<string>(
-    editPatient.secundaryContact,
+  const [name, setName] = useState<string>(editProfessional.name);
+  const [specialty, setSpecialty] = useState<number>(
+    editProfessional.specialty.id,
   );
-  const [dateBirth, setDateBirth] = useState<Date | undefined>(
-    editPatient.dateBirth
-      ? parse(editPatient.dateBirth, "dd-MM-yyyy", new Date())
-      : undefined,
+  const [email, setEmail] = useState<string>(editProfessional.email);
+  const [contact, setContact] = useState<string>(editProfessional.contact);
+  const [secundaryContact, setSecundaryContact] = useState<string>(
+    editProfessional.secundaryContact,
   );
 
-  const EditPatient = async (e: FormEvent<HTMLFormElement>) => {
+  const EditProfessional = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   };
-  
   return (
     <div className="mt-5 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="p-6 xl:p-6.5">
@@ -38,7 +34,7 @@ export default function EditPatient({
           <ChevronLeft size={30} />
         </button>
         <div className="mt-3">
-          <form onSubmit={EditPatient}>
+          <form onSubmit={EditProfessional}>
             <div className="mb-3 flex flex-col gap-6 lg:flex-row">
               <div className="w-full lg:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
@@ -54,27 +50,16 @@ export default function EditPatient({
               </div>
               <div className="w-full lg:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                  CPF <span className="text-meta-1">*</span>
+                  Especialidade <span className="text-meta-1">*</span>
                 </label>
-                <div className="flex items-center">
-                  <IMaskInput
-                    mask="000.000.000-00"
-                    value={cpf}
-                    onAccept={(v: string) => setCpf(v)}
-                    placeholder="000.000.000-00"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 uppercase text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-1/2">
-                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                  Data de nascimento <span className="text-meta-1">*</span>
-                </label>
-                <DatePicker
-                  value={dateBirth}
-                  onChange={setDateBirth}
-                  className="relative w-full"
-                  inputClassName="w-full h-[50px] flex items-center gap-2 rounded border-[1.5px] border-stroke bg-transparent px-4 text-left text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                <Select
+                  placeholder="Selecione"
+                  selectedValue={specialty}
+                  options={[].map((e) => ({
+                    label: e.nome,
+                    value: e.id,
+                  }))}
+                  onValueChange={(value) => setSpecialty(+value)}
                 />
               </div>
             </div>

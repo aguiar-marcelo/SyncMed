@@ -3,7 +3,7 @@ import Patients from "@/components/Patients/Patients";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Paciente | SyncMed",
+  title: "Pacientes | SyncMed",
   description: "",
 };
 

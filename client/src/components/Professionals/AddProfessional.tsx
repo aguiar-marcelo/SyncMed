@@ -5,34 +5,32 @@ import { IMaskInput } from "react-imask";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
 import DatePicker from "../DatePickerField";
 
-export default function AddPatient() {
+export default function AddProfessional() {
   const [name, setName] = useState<string>("");
-  const [cpf, setCpf] = useState<string>("");
+  const [specialty, setSpecialty] = useState<number>();
   const [email, setEmail] = useState<string>("");
   const [contact, setContact] = useState<string>("");
   const [secundaryContact, setSecundaryContact] = useState<string>("");
-  const [dateBirth, setDateBirth] = useState<Date>();
 
-  const AddPatient = async (e: FormEvent<HTMLFormElement>) => {
+  const AddProfessional = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   };
 
   const cleanForm = () => {
     setName("");
-    setCpf("");
+    setSpecialty(undefined);
     setEmail("");
     setSecundaryContact("");
-    setDateBirth(undefined);
   };
 
   return (
     <div className="grid grid-cols-1 gap-9">
       <div className="flex flex-col gap-5">
-        <TitlePage pageName="Novo Paciente" />
+        <TitlePage pageName="Novo Profissional" />
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="p-6 xl:p-6.5">
             <div className="mt-4">
-              <form onSubmit={AddPatient}>
+              <form onSubmit={AddProfessional}>
                 <div className="mb-3 flex flex-col gap-6 lg:flex-row">
                   <div className="w-full lg:w-1/2">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
@@ -50,27 +48,16 @@ export default function AddPatient() {
                   </div>
                   <div className="w-full lg:w-1/2">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      CPF <span className="text-meta-1">*</span>
+                      Especialidade <span className="text-meta-1">*</span>
                     </label>
-                    <div className="flex items-center">
-                      <IMaskInput
-                        mask="000.000.000-00"
-                        value={cpf}
-                        onAccept={(v: string) => setCpf(v)}
-                        placeholder="000.000.000-00"
-                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 uppercase text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      />
-                    </div>
-                  </div>
-                  <div className="w-full lg:w-1/2">
-                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Data de nascimento <span className="text-meta-1">*</span>
-                    </label>
-                    <DatePicker
-                      value={dateBirth}
-                      onChange={setDateBirth}
-                      className="relative w-full"
-                      inputClassName="w-full h-[50px] flex items-center gap-2 rounded border-[1.5px] border-stroke bg-transparent px-4 text-left text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    <Select
+                      placeholder="Selecione"
+                      selectedValue={specialty}
+                      options={[].map((e) => ({
+                        label: e.nome,
+                        value: e.id,
+                      }))}
+                      onValueChange={(value) => setSpecialty(+value)}
                     />
                   </div>
                 </div>
@@ -96,7 +83,7 @@ export default function AddPatient() {
                       value={contact}
                       onAccept={(v: string) => setContact(v)}
                       placeholder="(00) 00000-0000"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3  text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
                   </div>
                   <div className="w-full lg:w-1/2">
@@ -105,7 +92,7 @@ export default function AddPatient() {
                     </label>
                     <input
                       type="email"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3  text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       value={name}
                       onChange={({ target }) =>
                         setEmail(target.value.toLocaleLowerCase())

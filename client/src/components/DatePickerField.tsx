@@ -4,25 +4,23 @@ import { useEffect, useRef, useState } from "react";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import { ptBR } from "date-fns/locale";
 import { format } from "date-fns";
+import { Calendar } from "lucide-react";
+import "react-day-picker/dist/style.css";
 
 type Props = {
   value?: Date;
   onChange: (v?: Date) => void;
-  label?: string;
   disableFuture?: boolean;
-  fromYear?: number;
   toYear?: number;
   className?: string;
   inputClassName?: string;
   placeholder?: string;
 };
 
-export default function DatePickerField({
+export default function DatePicker({
   value,
   onChange,
-  label = "Data",
   disableFuture = true,
-  fromYear = 1920,
   toYear = new Date().getFullYear(),
   className,
   inputClassName,
@@ -34,7 +32,6 @@ export default function DatePickerField({
 
   useEffect(() => setSelected(value), [value]);
 
-  // Fechar ao clicar fora
   useEffect(() => {
     if (!open) return;
     const onDocClick = (e: MouseEvent) => {
@@ -60,7 +57,6 @@ export default function DatePickerField({
 
   return (
     <div className={className} ref={ref}>
-      {/* Trigger com aparência de input */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -69,14 +65,14 @@ export default function DatePickerField({
           "h-[46px] w-full rounded border-[1.5px] border-stroke bg-transparent px-5 text-left text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
         }
       >
+        <Calendar size={17} />
         {selected ? (
           format(selected, "dd/MM/yyyy")
         ) : (
-          <span className="text-slate-400">{placeholder}</span>
+          <span className="mt-1 text-slate-400">{placeholder}</span>
         )}
       </button>
 
-      {/* Popover */}
       {open && (
         <div className="absolute z-50 mt-2 rounded-md border border-stroke bg-white p-2 shadow-md dark:border-strokedark dark:bg-boxdark">
           <DayPicker
@@ -84,15 +80,15 @@ export default function DatePickerField({
             locale={ptBR}
             selected={selected}
             onSelect={handleSelect}
-            fromYear={fromYear}
             toYear={toYear}
             weekStartsOn={1}
             showOutsideDays
+            captionLayout="dropdown"
             disabled={disableFuture ? { after: new Date() } : undefined}
             style={{
-              ["--rdp-accent-color" as any]: "#5e5eff",
+              ["--rdp-accent-color" as any]: "#441b7a",
               ["--rdp-day_button-width" as any]: "35px",
-              ["--rdp-day_button-height" as any]: "28px",
+              ["--rdp-day_button-height" as any]: "35px",
             }}
             classNames={{
               caption_label: "text-sm pl-1.5",
