@@ -7,46 +7,46 @@ import {
   Copy,
   Pencil,
   Plus,
+  Stethoscope,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { ThreeDot } from "react-loading-indicators";
-import EditPatient from "./EditPatient";
+import EditProfessional from "./EditProfessional";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
-import { formatContact, formatCPF } from "@/lib/utils";
+import { formatContact } from "@/lib/utils";
+import Select from "../SelectGroup/Select";
 
 const test = [
   {
     name: "Cleber Barbosa",
-    cpf: "12312312345",
-    dateBirth: "22-08-2020",
     contact: "13981651345",
     secundaryContact: "13981651377",
+    specialty: { id: "1", name: "Cardiologia" },
     email: "cleber.barbosa@gmail.com",
   },
   {
-    name: "Marcelo Santos",
-    cpf: "12312312345",
-    dateBirth: "22-08-2020",
+    name: "Cleber Barbosa",
     contact: "13981651345",
     secundaryContact: "13981651377",
-    email: "marcelo.santos@gmail.com",
+    specialty: { id: "1", name: "Cardiologia" },
+    email: "cleber.barbosa@gmail.com",
   },
   {
-    name: "Marcos Barbosa",
-    cpf: "12312312345",
-    dateBirth: "22-08-2020",
+    name: "Cleber Barbosa",
     contact: "13981651345",
     secundaryContact: "13981651377",
-    email: "marcos.barbosa@gmail.com",
+    specialty: { id: "1", name: "Cardiologia" },
+    email: "cleber.barbosa@gmail.com",
   },
 ];
 
-export default function Patients() {
+export default function Professionals() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [patients, setPatients] = useState<any[]>(test); // <-- usa o test
-  const [editPatient, setEditPatient] = useState<any | undefined>();
+  const [professionals, setProfessionals] = useState<any[]>(test); // <-- usa o test
+  const [editProfessional, setEditProfessional] = useState<any | undefined>();
   const [search, setSearch] = useState<string>("");
+  const [specialtyFilter, setSpecialtyFilter] = useState<number>();
 
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -58,7 +58,7 @@ export default function Patients() {
     return path.split(".").reduce((acc, key) => acc?.[key], obj);
   };
 
-  const sortedPatients = [...patients].sort((a, b) => {
+  const sortedProfessionals = [...professionals].sort((a, b) => {
     if (!sortColumn) return 0;
 
     let aValue = getNestedValue(a, sortColumn);
@@ -84,14 +84,13 @@ export default function Patients() {
   return (
     <div className="grid grid-cols-1 gap-9">
       <div className="flex flex-col">
-        <TitlePage pageName="Pacientes" />
-
+        <TitlePage pageName="Profissionais" />
         <div className="text-black dark:text-white">
           <div className="flex items-start justify-between gap-5">
             <div className="w-full pb-3 dark:bg-[#0b0b12]">
-              {!editPatient ? (
+              {!editProfessional ? (
                 <>
-                  <div className="mb-4.5 flex justify-between gap-6 border-b pb-4 md:flex-row">
+                  <div className="mb-4.5 flex justify-between gap-6 border-b md:flex-row">
                     <div className="w-full xl:w-1/2">
                       <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                         &nbsp;
@@ -104,8 +103,22 @@ export default function Patients() {
                         onChange={(e) => setSearch(e.target.value)}
                       />
                     </div>
-
-                    <Link href="/patients/new">
+                    <div className="w-full xl:w-1/2">
+                      <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                        &nbsp;
+                      </label>
+                      <Select
+                        placeholder="Selecione"
+                        selectedValue={specialtyFilter}
+                        options={[].map((e) => ({
+                          label: e.nome,
+                          value: e.id,
+                        }))}
+                        onValueChange={(value) => setSpecialtyFilter(+value)}
+                        textSelectAll="Todos as Especialidades"
+                      />
+                    </div>
+                    <Link href="/professionals/new">
                       <button className="mt-8 flex h-12.5 items-center justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
                         <Plus />
                       </button>
@@ -123,8 +136,7 @@ export default function Patients() {
                           <tr className="bg-gray-2 text-left dark:bg-meta-4">
                             {[
                               { key: "name", label: "Nome" },
-                              { key: "cpf", label: "CPF" },
-                              { key: "dateBirth", label: "Nascimento" },
+                              { key: "specialty", label: "Especialidade" },
                               { key: "contact", label: "Contato" },
                               {
                                 key: "secundaryContact",
@@ -152,41 +164,45 @@ export default function Patients() {
                           </tr>
                         </thead>
                         <tbody>
-                          {sortedPatients
+                          {sortedProfessionals
                             .filter((u) =>
                               Object.values(u)
                                 .join(" ")
                                 .toLowerCase()
                                 .includes(search.toLowerCase()),
                             )
-                            .map((patient, i) => (
+                            .map((professional, i) => (
                               <tr
-                                key={"patient" + i}
+                                key={"professional" + i}
                                 className="border-b border-gray-200 odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800"
                               >
-                                <td className="px-5 py-3">{patient.name}</td>
                                 <td className="px-5 py-3">
-                                  {formatCPF(patient.cpf)}
+                                  {professional.name}
                                 </td>
                                 <td className="px-5 py-3">
-                                  {patient.dateBirth}
+                                  <p className="flex items-center gap-1 font-semibold text-[#5e5eff]">
+                                    <Stethoscope size={14} />
+                                    {professional.specialty.name}
+                                  </p>
                                 </td>
                                 <td className="px-5 py-3">
-                                  {formatContact(patient.contact)}
+                                  {formatContact(professional.contact)}
                                 </td>
                                 <td className="px-5 py-3">
-                                  {patient.secundaryContact &&
-                                    formatContact(patient.secundaryContact)}
+                                  {professional.secundaryContact &&
+                                    formatContact(
+                                      professional.secundaryContact,
+                                    )}
                                 </td>
                                 <td className="px-5 py-3">
                                   <div className="flex items-center gap-2">
-                                    <span>{patient.email}</span>
+                                    <span>{professional.email}</span>
                                     <button
                                       type="button"
                                       className="hover:text-[#5e5eff]"
                                       onClick={() =>
                                         navigator.clipboard.writeText(
-                                          patient.email,
+                                          professional.email,
                                         )
                                       }
                                     >
@@ -197,7 +213,9 @@ export default function Patients() {
                                 <td className="px-5 py-3">
                                   <button
                                     className="p-1 hover:text-[#5e5eff]"
-                                    onClick={() => setEditPatient(patient)}
+                                    onClick={() =>
+                                      setEditProfessional(professional)
+                                    }
                                   >
                                     <Pencil size={18} />
                                   </button>
@@ -235,9 +253,9 @@ export default function Patients() {
                   )}
                 </>
               ) : (
-                <EditPatient
-                  editPatient={editPatient}
-                  goBack={() => setEditPatient(undefined)}
+                <EditProfessional
+                  editProfessional={editProfessional}
+                  goBack={() => setEditProfessional(undefined)}
                 />
               )}
             </div>

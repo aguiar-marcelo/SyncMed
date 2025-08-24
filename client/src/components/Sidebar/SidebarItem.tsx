@@ -13,7 +13,7 @@ const SidebarItem = ({ item, pageName, setPageName, sidebarHover }: any) => {
   const pathname = usePathname();
 
   const isActive = (item: any) => {
-    if (item.route === pathname) return true;
+    if (item.route.split("/")[1] == pathname.split("/")[1]) return true;
     if (item.children) {
       return item.children.some((child: any) => isActive(child));
     }
@@ -36,7 +36,7 @@ const SidebarItem = ({ item, pageName, setPageName, sidebarHover }: any) => {
         <Link
           href={item.route}
           onClick={handleClick}
-          className={`${isItemActive ? "!font-semibold text-primary" : ""} relative flex h-12 items-center gap-3 rounded-sm font-light text-sm text-bodydark2 transition duration-300 ease-in-out hover:text-primary ${sidebarHover ? "px-5" : "justify-left flex pl-5"}`}
+          className={`${isItemActive ? "!font-semibold text-primary" : ""} relative flex h-12 items-center gap-3 rounded-sm text-sm font-light text-bodydark2 transition duration-300 ease-in-out hover:text-primary ${sidebarHover ? "px-5" : "justify-left flex pl-5"}`}
         >
           <span>{item.icon}</span>
           {isItemActive && (

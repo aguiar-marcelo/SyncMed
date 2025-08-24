@@ -1,17 +1,17 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import AddPatient from "@/components/Patients/AddPatient";
+import Professionals from "@/components/Professionals/Professionals";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Pacientes | SyncMed",
+  title: "Profissionais | SyncMed",
   description: "",
 };
 
-export default async function PatientAddPage() {
+export default async function ProfessionalsPage() {
   return (
     <>
       <DefaultLayout>
-        <AddPatient />
+        <Professionals />
       </DefaultLayout>
     </>
   );
