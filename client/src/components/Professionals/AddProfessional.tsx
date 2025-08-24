@@ -3,7 +3,6 @@ import { FormEvent, useState, useEffect, ChangeEvent } from "react";
 import Select from "../SelectGroup/Select";
 import { IMaskInput } from "react-imask";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
-import DatePicker from "../DatePickerField";
 
 export default function AddProfessional() {
   const [name, setName] = useState<string>("");
