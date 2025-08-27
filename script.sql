@@ -1,5 +1,17 @@
 use syncmed;
 
+CREATE TABLE dbo.[users] (
+  [id]                      INT IDENTITY(1,1) PRIMARY KEY,
+  [email]                   NVARCHAR(256) NOT NULL UNIQUE,
+  [password_hash]           VARBINARY(256) NOT NULL,
+  [password_salt]           VARBINARY(128) NOT NULL,
+  [role]                    NVARCHAR(50)   NULL,
+  [refresh_token]           NVARCHAR(200)  NULL,
+  [refresh_token_expires]   DATETIME2      NULL,
+  [created_at]              DATETIME2      NOT NULL DEFAULT SYSUTCDATETIME(),
+  [updated_at]              DATETIME2      NOT NULL DEFAULT SYSUTCDATETIME()
+);
+
 CREATE TABLE patient (
     id               INT IDENTITY(1,1) PRIMARY KEY,
     [name]           NVARCHAR(120) NOT NULL,

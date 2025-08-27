@@ -22,8 +22,10 @@ import RegisterSchedullingModal from "./RegisterSchedullingModal";
 import { useSchedulling } from "@/contexts/SchedulingContext";
 import { Professional, Schedulling } from "@/types/api";
 import { getSchedullingsByDate } from "@/services/schedulling";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Schedule() {
+  const { accessToken} = useAuth();
   const { professionals, schedullingsAllDates } = useSchedulling();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -56,6 +58,7 @@ export default function Schedule() {
   }, [professionals, proSearch, selectedPros]);
 
   const fetchSchedullingsByDate = async () => {
+    if (!accessToken) return;
     if (!date) return;
     try {
       setLoading(true);

@@ -7,21 +7,13 @@ export type SelectItem = { id: number; name: string };
 type Props = {
   items: SelectItem[];
   placeholder?: string;
-  /** ID selecionado (opcional). */
   value?: number | null;
-  /** Disparado ao escolher um item (ou limpar). */
   onChange: (item: SelectItem | null) => void;
   className?: string;
   disabled?: boolean;
   noResultsText?: string;
 };
 
-/**
- * TypeaheadSelect
- * - Permite digitar para filtrar e escolher um item.
- * - Recebe `items` (id:number, name:string) e `placeholder`.
- * - Controlado por `value` (id) e `onChange` retorna o item completo.
- */
 export default function SelectFilter({
   items,
   placeholder = "Selecione...",
