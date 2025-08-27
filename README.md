@@ -13,8 +13,8 @@ Segue o script SQL para criação:
 ```sql
 CREATE DATABASE syncmed;
 GO
-
-- Após criar o banco rode o script.sql que esta na raiz do repositorio 
+```
+- Após criar o banco rode o **script.sql** que esta na raiz do repositório.
 
 ## 🚀 Como rodar o Back-end
 
