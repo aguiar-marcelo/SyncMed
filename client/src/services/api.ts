@@ -1,12 +1,31 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-export const apiBaseUrl = "https://localhost:32771";
+export const apiBaseUrl = "https://localhost:32769/api";
 
 export const axiosClient = axios.create({
-  baseURL: apiBaseUrl + "/api",
+  baseURL: apiBaseUrl,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+
+axiosClient.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get("accessToken");
+    const user = Cookies.get("user");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (user) {
+      config.headers.UserId = `${JSON.parse(user || "").userId}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);

@@ -209,7 +209,7 @@ namespace syncmed.Controllers
                 FROM schedulling
                 WHERE id = @Id;";
 
-            await using var db = new Microsoft.Data.SqlClient.SqlConnection(_connectionString);
+            await using var db = new SqlConnection(_connectionString);
 
             var patExists = await db.ExecuteScalarAsync<int>(CHECK_PAT, new { req.IdPatient });
             if (patExists == 0) return BadRequest(new { error = "Patient not found." });

@@ -10,6 +10,7 @@ import { Patient, Professional, Specialty } from "@/types/api";
 import { getProfessionals, getSpecialtys } from "@/services/professional";
 import { getPatients } from "@/services/patient";
 import { getSchedullingsAllDates } from "@/services/schedulling";
+import { useAuth } from "./AuthContext";
 
 interface SchedullingContextData {
   specialtys: Specialty[];
@@ -24,6 +25,7 @@ const SchedullingContext = createContext<SchedullingContextData | undefined>(
 );
 
 export const SchedullingProvider = ({ children }: { children: ReactNode }) => {
+  const { accessToken } = useAuth();
   const [specialtys, setSpecialtys] = useState<Specialty[]>([]);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -49,10 +51,12 @@ export const SchedullingProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    FetchProducts();
-    FetchProfessionals();
-    FetchPatients();
-    FetchSchedullingsAllDates();
+    if (accessToken) {
+      FetchProducts();
+      FetchProfessionals();
+      FetchPatients();
+      FetchSchedullingsAllDates();
+    }
   }, []);
 
   return (
