@@ -26,5 +26,6 @@ RUN dotnet publish "./syncmed.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p
 # Esta fase é usada na produção ou quando executada no VS no modo normal (padrão quando não está usando a configuração de Depuração)
 FROM base AS final
 WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:8080
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "syncmed.dll"]

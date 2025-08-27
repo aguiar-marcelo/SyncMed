@@ -16,7 +16,7 @@ export default function EditProfessional({
 }) {
   const [name, setName] = useState<string>(editProfessional.name);
   const [specialty, setSpecialty] = useState<number>(
-    editProfessional.specialty.id,
+    editProfessional.specialty.id ?? undefined,
   );
   const [contact, setContact] = useState<string>(editProfessional.contact);
   const [contactSecundary, setContactSecundary] = useState<string>(
@@ -41,9 +41,10 @@ export default function EditProfessional({
       );
       console.log("Profissional editado(a) com sucesso!", "success");
       goBack();
-    } catch (error: any) {
-      //criar alerta
-      console.error(error.message || "Erro ao adicionar profissional");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
     }
   };
 
@@ -79,7 +80,10 @@ export default function EditProfessional({
                     label: e.name,
                     value: e.id,
                   }))}
-                  onValueChange={(value) => setSpecialty(+value)}
+                  onValueChange={(value) => {
+                    if (!value) return;
+                    setSpecialty(+value);
+                  }}
                 />
               </div>
             </div>

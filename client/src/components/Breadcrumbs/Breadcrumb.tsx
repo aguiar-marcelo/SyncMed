@@ -1,4 +1,3 @@
-import { CirclePlus } from "lucide-react";
 
 interface TitlePageProps {
   pageName: string;

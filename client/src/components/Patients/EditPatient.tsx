@@ -42,9 +42,12 @@ export default function EditPatient({
       );
       console.log("Paciente editado(a) com sucesso!", "success");
       goBack();
-    } catch (error: any) {
-      //criar alerta
-      console.error(error.message || "Erro ao adicionar paciente");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.error("Erro ao adicionar paciente");
+      }
     }
   };
 

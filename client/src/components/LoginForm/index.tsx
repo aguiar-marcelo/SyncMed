@@ -2,8 +2,7 @@
 import { FormEvent, useState } from "react";
 import Image from "next/image";
 import { OrbitProgress } from "react-loading-indicators";
-import { ButtonLoading } from "../ButtonLoading/Page";
-import { Eye, EyeClosed, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 

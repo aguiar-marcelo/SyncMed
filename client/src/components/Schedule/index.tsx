@@ -1,19 +1,15 @@
 "use client";
 import {
   CirclePlus,
-  Pencil,
-  ChevronUp,
-  ChevronDown,
   Stethoscope,
   Search,
   User2,
   Calendar,
   X,
-  ChevronRight,
 } from "lucide-react";
-import { format, parse, isSameDay, addMinutes } from "date-fns";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
 import { ThreeDot } from "react-loading-indicators";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
@@ -25,7 +21,7 @@ import { getSchedullingsByDate } from "@/services/schedulling";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Schedule() {
-  const { accessToken} = useAuth();
+  const { accessToken } = useAuth();
   const { professionals, schedullingsAllDates } = useSchedulling();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -57,9 +53,8 @@ export default function Schedule() {
       });
   }, [professionals, proSearch, selectedPros]);
 
-  const fetchSchedullingsByDate = async () => {
-    if (!accessToken) return;
-    if (!date) return;
+  const fetchSchedullingsByDate = useCallback(async () => {
+    if (!accessToken || !date) return;
     try {
       setLoading(true);
       const data = await getSchedullingsByDate(
@@ -67,13 +62,13 @@ export default function Schedule() {
         professionalId,
       );
       setSchedullingsByDate(data);
-    } catch (e) {
-      console.error(e);
+    } catch (error: unknown) {
+      if (error instanceof Error) console.error(error.message);
       setSchedullingsByDate([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [accessToken, date, professionalId]);
 
   const daysWithRecordsSet = useMemo(() => {
     return new Set<string>(schedullingsAllDates ?? []);
@@ -87,7 +82,7 @@ export default function Schedule() {
   useEffect(() => {
     if (!date) return;
     fetchSchedullingsByDate();
-  }, [date, professionalId]);
+  }, [date, professionalId, fetchSchedullingsByDate]);
 
   return (
     <div className="grid grid-cols-1 gap-9">
@@ -132,7 +127,8 @@ export default function Schedule() {
                           {
                             key: "professional.specialty.name",
                             label: "Especialidade",
-                          },{
+                          },
+                          {
                             key: "obs",
                             label: "Obs.",
                           },
@@ -190,12 +186,13 @@ export default function Schedule() {
                   selected={date}
                   onSelect={setDate}
                   showOutsideDays
-                  disabled={(day) => false}
-                  style={{
-                    ["--rdp-accent-color" as any]: "#5e5eff",
-                    ["--rdp-day_button-width" as any]: "35px",
-                    ["--rdp-day_button-height" as any]: "30px",
-                  }}
+                  style={
+                    {
+                      "--rdp-accent-color": "#5e5eff",
+                      "--rdp-day_button-width": "35px",
+                      "--rdp-day_button-height": "30px",
+                    } as React.CSSProperties
+                  }
                   classNames={{
                     caption_label: "text-sm pl-1.5",
                     month_caption: `${getDefaultClassNames().month_caption} h-8 flex items-center`,
@@ -258,7 +255,7 @@ export default function Schedule() {
               )}
 
               <div className="mt-4 max-h-60 overflow-y-auto text-sm [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 [&::-webkit-scrollbar]:w-2">
-                {filteredProfessionals.map((p, i) => (
+                {filteredProfessionals.map((p) => (
                   <button
                     key={`professional-${p.id}`}
                     onClick={() => {
