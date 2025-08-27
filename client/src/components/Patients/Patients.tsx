@@ -26,7 +26,18 @@ export default function Patients() {
   const [editPatient, setEditPatient] = useState<Patient | undefined>();
   const [search, setSearch] = useState<string>("");
 
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const columns = [
+    { key: "name", label: "Nome" },
+    { key: "cpf", label: "CPF" },
+    { key: "birthDate", label: "Nascimento" },
+    { key: "contact", label: "Contato" },
+    { key: "contactSecundary", label: "Contato Secundário" },
+    { key: "email", label: "Email" },
+  ] as const satisfies ReadonlyArray<{ key: keyof Patient; label: string }>;
+
+  type SortableKeys = (typeof columns)[number]["key"];
+
+  const [sortColumn, setSortColumn] = useState<SortableKeys | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
@@ -43,7 +54,7 @@ export default function Patients() {
       setPatients(results.data);
       setCurrentPage(results.currentPage);
       setTotalPages(results.totalPages);
-    } catch (err) {
+    } catch {
       // criar alert
       setPatients([]);
     } finally {
@@ -55,31 +66,34 @@ export default function Patients() {
     try {
       await deletePatient(id);
       await FetchPatients();
-    } catch (error) {
-      console.error(error);
-      // criar alert
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
     }
-  };
-
-  const getNestedValue = (obj: any, path: string) => {
-    return path.split(".").reduce((acc, key) => acc?.[key], obj);
   };
 
   const sortedPatients = [...patients].sort((a, b) => {
     if (!sortColumn) return 0;
 
-    let aValue = getNestedValue(a, sortColumn);
-    let bValue = getNestedValue(b, sortColumn);
+    let aValue = a[sortColumn];
+    let bValue = b[sortColumn];
 
     if (aValue === null || aValue === undefined) aValue = "";
     if (bValue === null || bValue === undefined) bValue = "";
 
+    const norm = (v: unknown) =>
+      v instanceof Date ? v.getTime().toString() : String(v);
+
+    const sa = norm(aValue);
+    const sb = norm(bValue);
+
     return sortDirection === "asc"
-      ? String(aValue).localeCompare(String(bValue))
-      : String(bValue).localeCompare(String(aValue));
+      ? sa.localeCompare(sb)
+      : sb.localeCompare(sa);
   });
 
-  const handleSort = (column: string) => {
+  const handleSort = (column: SortableKeys) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
@@ -107,12 +121,40 @@ export default function Patients() {
     if (!patientToDelete) return;
     try {
       setDeleting(true);
-      await FetchDeletePatient((patientToDelete as any).id as number);
+      await FetchDeletePatient(patientToDelete.id);
       setConfirmModalOpen(false);
       setPatientToDelete(null);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
     } finally {
       setDeleting(false);
     }
+  };
+
+  const normalizedSearch = search.trim().toLowerCase();
+
+  const patientMatchesSearch = (u: Patient): boolean => {
+    if (!normalizedSearch) return true;
+
+    const birthAsText = u.birthDate
+      ? format(u.birthDate, "dd/MM/yyyy")
+      : String(u.birthDate ?? "");
+
+    const haystack = [
+      u.name,
+      u.cpf,
+      birthAsText,
+      u.contact,
+      u.contactSecundary ?? "",
+      u.email,
+    ]
+      .map((v) => String(v ?? ""))
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes(normalizedSearch);
   };
 
   return (
@@ -155,17 +197,7 @@ export default function Patients() {
                       <table className="w-full table-auto text-sm">
                         <thead>
                           <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                            {[
-                              { key: "name", label: "Nome" },
-                              { key: "cpf", label: "CPF" },
-                              { key: "birthDate", label: "Nascimento" },
-                              { key: "contact", label: "Contato" },
-                              {
-                                key: "contactSecundary",
-                                label: "Contato Secundário",
-                              },
-                              { key: "email", label: "Email" },
-                            ].map(({ key, label }) => (
+                            {columns.map(({ key, label }) => (
                               <th
                                 key={key}
                                 className="cursor-pointer px-5 py-3"
@@ -187,12 +219,7 @@ export default function Patients() {
                         </thead>
                         <tbody>
                           {sortedPatients
-                            .filter((u) =>
-                              Object.values(u)
-                                .join(" ")
-                                .toLowerCase()
-                                .includes(search.toLowerCase()),
-                            )
+                            .filter(patientMatchesSearch)
                             .map((patient, i) => (
                               <tr
                                 key={"patient" + i}
@@ -203,7 +230,9 @@ export default function Patients() {
                                   {formatCPF(patient.cpf)}
                                 </td>
                                 <td className="px-5 py-3">
-                                  {format(patient.birthDate, "dd/MM/yyyy")}
+                                  {patient.birthDate
+                                    ? format(patient.birthDate, "dd/MM/yyyy")
+                                    : String(patient.birthDate ?? "")}
                                 </td>
                                 <td className="px-5 py-3">
                                   {formatContact(patient.contact)}
@@ -224,6 +253,7 @@ export default function Patients() {
                                           patient.email,
                                         )
                                       }
+                                      aria-label={`Copiar email de ${patient.name}`}
                                     >
                                       <Copy size={14} />
                                     </button>
@@ -256,6 +286,7 @@ export default function Patients() {
                           }
                           disabled={currentPage === 1}
                           className="rounded bg-gray-200 p-2 text-black hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-meta-4 dark:text-white"
+                          aria-label="Página anterior"
                         >
                           <ChevronLeft size={20} />
                         </button>
@@ -270,6 +301,7 @@ export default function Patients() {
                           }
                           disabled={currentPage === totalPages}
                           className="rounded bg-gray-200 p-2 text-black hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-meta-4 dark:text-white"
+                          aria-label="Próxima página"
                         >
                           <ChevronRight size={20} />
                         </button>

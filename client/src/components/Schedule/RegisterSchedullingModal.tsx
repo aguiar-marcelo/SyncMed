@@ -10,6 +10,7 @@ import {
   getSchedullingsByDate,
   postAddSchedulling,
 } from "@/services/schedulling";
+import axios from "axios";
 
 interface RegisterSchedullingModalProps {
   onClose: () => void;
@@ -62,8 +63,10 @@ export default function RegisterSchedullingModal({
         professionalId,
       );
       setSchedullingsByDate(data);
-    } catch (e) {
-      console.log(e);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
       setSchedullingsByDate([]);
     } finally {
       setLoading(false);
@@ -89,12 +92,19 @@ export default function RegisterSchedullingModal({
       console.log("Paciente editado(a) com sucesso!", "success");
       cleanForm();
       FetchSchedullingsAllDates();
-    } catch (e: any) {
-      if (e.status == 409) {
-        alert(
-          "Este paciente ja possui consulta nesta data com este profissional!",
-        );
-        return;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 409) {
+          alert(
+            "Este paciente ja possui consulta nesta data com este profissional!",
+          );
+          return;
+        }
+        console.error(err.message);
+      } else if (err instanceof Error) {
+        console.error(err.message);
+      } else {
+        console.error("Erro ao agendar consulta");
       }
     } finally {
       setLoading(false);

@@ -31,9 +31,10 @@ export default function AddProfessional() {
       );
       console.log("Profissional editado(a) com sucesso!", "success");
       cleanForm();
-    } catch (error: any) {
-      //criar alerta
-      console.error(error.message || "Erro ao adicionar profissional");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
     }
   };
 
@@ -79,7 +80,7 @@ export default function AddProfessional() {
                         label: e.name,
                         value: e.id,
                       }))}
-                      onValueChange={(value) => setSpecialty(+value)}
+                      onValueChange={(value) => value ?? setSpecialty(value)}
                     />
                   </div>
                 </div>

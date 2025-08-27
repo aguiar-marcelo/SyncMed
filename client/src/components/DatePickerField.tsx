@@ -86,7 +86,7 @@ export default function DatePicker({
         onClick={() => setOpen((v) => !v)}
         className={
           inputClassName ??
-          "h-[46px] w-full rounded border-[1.5px] border-stroke bg-transparent px-5 text-left text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary flex items-center gap-2"
+          "flex h-[46px] w-full items-center gap-2 rounded border-[1.5px] border-stroke bg-transparent px-5 text-left text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
         }
       >
         <Calendar size={17} />
@@ -110,11 +110,13 @@ export default function DatePicker({
             captionLayout="dropdown"
             defaultMonth={selected}
             disabled={disableFuture ? { after: new Date() } : undefined}
-            style={{
-              ["--rdp-accent-color" as any]: "#441b7a",
-              ["--rdp-day_button-width" as any]: "35px",
-              ["--rdp-day_button-height" as any]: "35px",
-            }}
+            style={
+              {
+                "--rdp-accent-color": "#441b7a",
+                "--rdp-day_button-width": "35px",
+                "--rdp-day_button-height": "35px",
+              } as React.CSSProperties
+            }
             classNames={{
               caption_label: "text-sm pl-1.5",
               month_caption: `${getDefaultClassNames().month_caption} h-8 flex items-center`,

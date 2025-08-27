@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, {
   createContext,
   useContext,
@@ -95,23 +95,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     Cookies.remove("user");
   };
 
-  const scheduleRefresh = useCallback((expiresAtIso?: string) => {
-    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
-    if (!expiresAtIso) return;
-    const exp = new Date(expiresAtIso).getTime();
-    const now = Date.now();
-    const skewMs = 60_000; // renova 60s antes de expirar
-    const delay = Math.max(0, exp - now - skewMs);
-
-    if (delay === 0) {
-      void refresh(); // expira logo? tenta já
-      return;
-    }
-    refreshTimerRef.current = setTimeout(() => {
-      void refresh();
-    }, delay);
-  }, []);
-
   const refresh = useCallback(async () => {
     try {
       const rt = Cookies.get("refreshToken");
@@ -124,19 +107,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) throw new Error("Refresh falhou");
 
       const data: Partial<LoginResponse> = await res.json();
-
       persistSession(data);
 
       const newAccessExp =
         data.accessTokenExpiresAt || Cookies.get("accessTokenExpiresAt") || "";
       scheduleRefresh(newAccessExp);
       return true;
-    } catch (e) {
+    } catch (_) {
       clearSession();
       router.push("/login");
       return false;
     }
-  }, [router, scheduleRefresh]);
+  }, [router]);
+
+  const scheduleRefresh = useCallback(
+    (expiresAtIso?: string) => {
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+      if (!expiresAtIso) return;
+      const exp = new Date(expiresAtIso).getTime();
+      const now = Date.now();
+      const skewMs = 60_000;
+      const delay = Math.max(0, exp - now - skewMs);
+
+      if (delay === 0) {
+        void refresh();
+        return;
+      }
+      refreshTimerRef.current = setTimeout(() => {
+        void refresh();
+      }, delay);
+    },
+    [refresh],
+  );
 
   useEffect(() => {
     const at = Cookies.get("accessToken");
@@ -189,8 +191,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       scheduleRefresh(data.accessTokenExpiresAt);
 
       router.push("/");
-    } catch (e: any) {
-      setError(e?.message || "Erro inesperado");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erro inesperado");
+      }
     }
   };
 

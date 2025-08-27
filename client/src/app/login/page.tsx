@@ -1,9 +1,7 @@
 import { Metadata } from "next";
 import LoginForm from "@/components/LoginForm";
-
-import Image from "next/image";
 import DotGridIcon from "@/components/LoginForm/DotGridIcon";
-import { Notebook, NotebookIcon, Stethoscope, User } from "lucide-react";
+import { Notebook, Stethoscope, User } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Login | SyncMed",

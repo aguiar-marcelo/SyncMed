@@ -5,7 +5,7 @@ interface SelectProps {
   placeholder: string;
   options: { label: string; value: string | number }[];
   selectedValue: string | number | readonly string[] | undefined;
-  onValueChange: (value: string) => void;
+  onValueChange: (value: string | undefined) => void;
   className?: string;
   textSelectAll?: string;
   disabled?: boolean;
@@ -22,10 +22,7 @@ const Select: React.FC<SelectProps> = ({
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
-    onValueChange(
-      // @ts-ignore
-      value === "" ? undefined : value,
-    );
+    onValueChange(value === "" ? undefined : value);
   };
 
   const modifiedOptions = textSelectAll
@@ -66,7 +63,7 @@ const Select: React.FC<SelectProps> = ({
           ))}
         </select>
 
-        <span className="absolute right-4 top-1/2  -translate-y-1/2">
+        <span className="absolute right-4 top-1/2 -translate-y-1/2">
           <svg
             className="fill-current"
             width="24"

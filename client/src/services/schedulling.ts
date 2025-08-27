@@ -1,4 +1,4 @@
-import { Professional, Schedulling, Specialty } from "@/types/api";
+import { Schedulling } from "@/types/api";
 import { axiosClient as api } from "./api";
 
 export async function getSchedullingsAllDates(): Promise<string[]> {

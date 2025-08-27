@@ -10,13 +10,12 @@ import {
   Stethoscope,
   Trash,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ThreeDot } from "react-loading-indicators";
 import EditProfessional from "./EditProfessional";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
 import { formatContact } from "@/lib/utils";
-import Select from "../Selects/Select";
 import { Professional } from "@/types/api";
 import {
   deleteProfessional,
@@ -27,6 +26,7 @@ import { useSchedulling } from "@/contexts/SchedulingContext";
 
 export default function Professionals() {
   const { specialtys } = useSchedulling();
+
   const [loading, setLoading] = useState<boolean>(false);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [editProfessional, setEditProfessional] = useState<
@@ -34,7 +34,17 @@ export default function Professionals() {
   >();
   const [search, setSearch] = useState<string>("");
 
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const columns = [
+    { key: "name", label: "Nome" },
+    { key: "specialtyName", label: "Especialidade" },
+    { key: "contact", label: "Contato" },
+    { key: "contactSecundary", label: "Contato Secundário" },
+    { key: "email", label: "Email" },
+  ] as const;
+
+  type SortableKeys = typeof columns[number]["key"];
+
+  const [sortColumn, setSortColumn] = useState<SortableKeys | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
@@ -52,8 +62,10 @@ export default function Professionals() {
       setProfessionals(results.data);
       setCurrentPage(results.currentPage);
       setTotalPages(results.totalPages);
-    } catch (err) {
-      // criar alert
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
       setProfessionals([]);
     } finally {
       setLoading(false);
@@ -64,31 +76,42 @@ export default function Professionals() {
     try {
       await deleteProfessional(id);
       await FetchProfessionals();
-    } catch (error) {
-      console.error(error);
-      // criar alert
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
     }
   };
 
-  const getNestedValue = (obj: any, path: string) => {
-    return path.split(".").reduce((acc, key) => acc?.[key], obj);
-  };
+  const sortedProfessionals = useMemo(() => {
+    const getComparable = (p: Professional, key: SortableKeys): string => {
+      switch (key) {
+        case "name":
+          return p.name ?? "";
+        case "contact":
+          return p.contact ?? "";
+        case "contactSecundary":
+          return p.contactSecundary ?? "";
+        case "email":
+          return p.email ?? "";
+        case "specialtyName":
+          return p.specialty?.name ?? "";
+      }
+    };
 
-  const sortedProfessionals = [...professionals].sort((a, b) => {
-    if (!sortColumn) return 0;
+    const list = [...professionals];
+    if (!sortColumn) return list;
 
-    let aValue = getNestedValue(a, sortColumn);
-    let bValue = getNestedValue(b, sortColumn);
+    return list.sort((a, b) => {
+      const sa = getComparable(a, sortColumn);
+      const sb = getComparable(b, sortColumn);
+      return sortDirection === "asc"
+        ? sa.localeCompare(sb)
+        : sb.localeCompare(sa);
+    });
+  }, [professionals, sortColumn, sortDirection]);
 
-    if (aValue === null || aValue === undefined) aValue = "";
-    if (bValue === null || bValue === undefined) bValue = "";
-
-    return sortDirection === "asc"
-      ? String(aValue).localeCompare(String(bValue))
-      : String(bValue).localeCompare(String(aValue));
-  });
-
-  const handleSort = (column: string) => {
+  const handleSort = (column: SortableKeys) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
@@ -116,12 +139,33 @@ export default function Professionals() {
     if (!professionalToDelete) return;
     try {
       setDeleting(true);
-      await FetchDeleteProfessional((professionalToDelete as any).id as number);
+      await FetchDeleteProfessional(professionalToDelete.id);
       setConfirmModalOpen(false);
       setProfessionalToDelete(null);
     } finally {
       setDeleting(false);
     }
+  };
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const professionalMatchesSearch = (p: Professional) => {
+    if (!normalizedSearch) return true;
+
+    const specialtyName =
+      specialtys.find((s) => s.id === p.specialty.id)?.name ?? "";
+
+    const haystack = [
+      p.name,
+      specialtyName,
+      p.contact,
+      p.contactSecundary ?? "",
+      p.email,
+    ]
+      .map((v) => String(v ?? ""))
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes(normalizedSearch);
   };
 
   return (
@@ -163,16 +207,7 @@ export default function Professionals() {
                       <table className="w-full table-auto text-sm">
                         <thead>
                           <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                            {[
-                              { key: "name", label: "Nome" },
-                              { key: "specialty.id", label: "Especialidade" },
-                              { key: "contact", label: "Contato" },
-                              {
-                                key: "secundaryContact",
-                                label: "Contato Secundário",
-                              },
-                              { key: "email", label: "Email" },
-                            ].map(({ key, label }) => (
+                            {columns.map(({ key, label }) => (
                               <th
                                 key={key}
                                 className="cursor-pointer px-5 py-3"
@@ -194,12 +229,7 @@ export default function Professionals() {
                         </thead>
                         <tbody>
                           {sortedProfessionals
-                            .filter((u) =>
-                              Object.values(u)
-                                .join(" ")
-                                .toLowerCase()
-                                .includes(search.toLowerCase()),
-                            )
+                            .filter(professionalMatchesSearch)
                             .map((professional, i) => (
                               <tr
                                 key={"professional" + i}
@@ -212,7 +242,7 @@ export default function Professionals() {
                                   <p className="flex items-center gap-1 font-semibold text-[#5e5eff]">
                                     <Stethoscope size={16} />
                                     {specialtys.find(
-                                      (s) => s.id == professional.specialty.id,
+                                      (s) => s.id === professional.specialty.id,
                                     )?.name || "-"}
                                   </p>
                                 </td>
@@ -237,6 +267,7 @@ export default function Professionals() {
                                           professional.email,
                                         )
                                       }
+                                      aria-label={`Copiar email de ${professional.name}`}
                                     >
                                       <Copy size={14} />
                                     </button>

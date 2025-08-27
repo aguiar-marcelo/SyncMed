@@ -30,9 +30,12 @@ export default function AddPatient() {
       );
       console.log("Paciente adicionado(a) com sucesso!", "success");
       cleanForm();
-    } catch (error: any) {
-      //criar alerta
-      console.error(error.message || "Erro ao adicionar paciente");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.error("Erro ao adicionar paciente");
+      }
     }
   };
 
