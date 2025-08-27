@@ -3,30 +3,50 @@ import { ChevronLeft } from "lucide-react";
 import { FormEvent, useState } from "react";
 import Select from "../SelectGroup/Select";
 import { IMaskInput } from "react-imask";
-import { format, parse } from "date-fns";
-import DatePicker from "../DatePickerField";
-import TitlePage from "../Breadcrumbs/Breadcrumb";
+import { Professional } from "@/types/api";
+import { useSchedulling } from "@/contexts/SchedulingContext";
+import { putEditProfessional } from "@/services/professional";
 
 export default function EditProfessional({
   editProfessional,
   goBack,
 }: {
-  editProfessional: any;
+  editProfessional: Professional;
   goBack: () => void;
 }) {
   const [name, setName] = useState<string>(editProfessional.name);
   const [specialty, setSpecialty] = useState<number>(
     editProfessional.specialty.id,
   );
-  const [email, setEmail] = useState<string>(editProfessional.email);
   const [contact, setContact] = useState<string>(editProfessional.contact);
-  const [secundaryContact, setSecundaryContact] = useState<string>(
-    editProfessional.secundaryContact,
+  const [contactSecundary, setContactSecundary] = useState<string>(
+    editProfessional.contactSecundary,
   );
+  const [email, setEmail] = useState<string>(editProfessional.email);
+  const { specialtys } = useSchedulling();
 
   const EditProfessional = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    //criar alerta
+
+    try {
+      await putEditProfessional(
+        editProfessional.id,
+        name.trim().toUpperCase(),
+        contact.replace(/\D/g, ""),
+        contactSecundary.replace(/\D/g, ""),
+        email.trim().toLowerCase(),
+        specialty,
+      );
+      console.log("Paciente editado(a) com sucesso!", "success");
+      goBack();
+    } catch (error: any) {
+      //criar alerta
+      console.error(error.message || "Erro ao adicionar paciente");
+    }
   };
+
   return (
     <div className="mt-5 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="p-6 xl:p-6.5">
@@ -55,8 +75,8 @@ export default function EditProfessional({
                 <Select
                   placeholder="Selecione"
                   selectedValue={specialty}
-                  options={[].map((e) => ({
-                    label: e.nome,
+                  options={specialtys.map((e) => ({
+                    label: e.name,
                     value: e.id,
                   }))}
                   onValueChange={(value) => setSpecialty(+value)}
@@ -82,8 +102,8 @@ export default function EditProfessional({
                 </label>
                 <IMaskInput
                   mask="(00) 00000-0000"
-                  value={contact}
-                  onAccept={(v: string) => setContact(v)}
+                  value={contactSecundary}
+                  onAccept={(v: string) => setContactSecundary(v)}
                   placeholder="(00) 00000-0000"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 />

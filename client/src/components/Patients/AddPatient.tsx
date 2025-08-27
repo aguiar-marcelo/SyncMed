@@ -41,6 +41,7 @@ export default function AddPatient() {
     setName("");
     setCpf("");
     setEmail("");
+    setContact("");
     setContactSecundary("");
     setBirthDate(undefined);
   };

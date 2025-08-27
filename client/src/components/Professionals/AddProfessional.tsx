@@ -3,13 +3,15 @@ import { FormEvent, useState, useEffect, ChangeEvent } from "react";
 import Select from "../SelectGroup/Select";
 import { IMaskInput } from "react-imask";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
+import { useSchedulling } from "@/contexts/SchedulingContext";
 
 export default function AddProfessional() {
   const [name, setName] = useState<string>("");
   const [specialty, setSpecialty] = useState<number>();
   const [email, setEmail] = useState<string>("");
   const [contact, setContact] = useState<string>("");
-  const [secundaryContact, setSecundaryContact] = useState<string>("");
+  const [contactSecundary, setContactSecundary] = useState<string>("");
+  const { specialtys } = useSchedulling();
 
   const AddProfessional = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -19,7 +21,8 @@ export default function AddProfessional() {
     setName("");
     setSpecialty(undefined);
     setEmail("");
-    setSecundaryContact("");
+    setContact("");
+    setContactSecundary("");
   };
 
   return (
@@ -52,8 +55,8 @@ export default function AddProfessional() {
                     <Select
                       placeholder="Selecione"
                       selectedValue={specialty}
-                      options={[].map((e) => ({
-                        label: e.nome,
+                      options={specialtys.map((e) => ({
+                        label: e.name,
                         value: e.id,
                       }))}
                       onValueChange={(value) => setSpecialty(+value)}
@@ -79,8 +82,8 @@ export default function AddProfessional() {
                     </label>
                     <IMaskInput
                       mask="(00) 00000-0000"
-                      value={contact}
-                      onAccept={(v: string) => setContact(v)}
+                      value={contactSecundary}
+                      onAccept={(v: string) => setContactSecundary(v)}
                       placeholder="(00) 00000-0000"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
@@ -92,7 +95,7 @@ export default function AddProfessional() {
                     <input
                       type="email"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      value={name}
+                      value={email}
                       onChange={({ target }) =>
                         setEmail(target.value.toLocaleLowerCase())
                       }

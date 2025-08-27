@@ -22,12 +22,12 @@ CREATE TABLE professional (
     contact            VARCHAR(15)   NULL,
     contactSecundary  VARCHAR(15)   NULL,
     email              NVARCHAR(254) NULL,
-    id_specialty       INT           NOT NULL,
+    idSpecialty       INT           NOT NULL,
     CONSTRAINT FK_professional_specialty
-        FOREIGN KEY (id_specialty) REFERENCES dbo.[specialty](id)
+        FOREIGN KEY (idSpecialty) REFERENCES dbo.[specialty](id)
 );
 
-CREATE INDEX IX_professional_id_specialty ON dbo.[professional](id_specialty);
+CREATE INDEX IX_professional_idSpecialty ON dbo.[professional](idSpecialty);
 
 
 -- INSERT DE DADOS

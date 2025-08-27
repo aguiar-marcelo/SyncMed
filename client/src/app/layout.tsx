@@ -7,6 +7,7 @@ import {
   Montserrat,
 } from "next/font/google";
 import "@/css/style.css";
+import { SchedullingProvider } from "@/contexts/SchedulingContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,7 +51,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${montserrat.variable} antialiased [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 [&::-webkit-scrollbar]:w-2`}
       >
-        {children}
+        <SchedullingProvider>
+          {children}
+        </SchedullingProvider>
       </body>
     </html>
   );

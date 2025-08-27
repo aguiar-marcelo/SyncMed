@@ -8,51 +8,67 @@ import {
   Pencil,
   Plus,
   Stethoscope,
+  Trash,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ThreeDot } from "react-loading-indicators";
 import EditProfessional from "./EditProfessional";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
 import { formatContact } from "@/lib/utils";
 import Select from "../SelectGroup/Select";
-
-const test = [
-  {
-    name: "Cleber Barbosa",
-    contact: "13981651345",
-    secundaryContact: "13981651377",
-    specialty: { id: "1", name: "Cardiologia" },
-    email: "cleber.barbosa@gmail.com",
-  },
-  {
-    name: "Cleber Barbosa",
-    contact: "13981651345",
-    secundaryContact: "13981651377",
-    specialty: { id: "1", name: "Cardiologia" },
-    email: "cleber.barbosa@gmail.com",
-  },
-  {
-    name: "Cleber Barbosa",
-    contact: "13981651345",
-    secundaryContact: "13981651377",
-    specialty: { id: "1", name: "Cardiologia" },
-    email: "cleber.barbosa@gmail.com",
-  },
-];
+import { Professional } from "@/types/api";
+import {
+  deleteProfessional,
+  getProfessionalList,
+} from "@/services/professional";
+import { Modal } from "../Modal/page";
+import { useSchedulling } from "@/contexts/SchedulingContext";
 
 export default function Professionals() {
+  const { specialtys } = useSchedulling();
   const [loading, setLoading] = useState<boolean>(false);
-  const [professionals, setProfessionals] = useState<any[]>(test); // <-- usa o test
-  const [editProfessional, setEditProfessional] = useState<any | undefined>();
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [editProfessional, setEditProfessional] = useState<
+    Professional | undefined
+  >();
   const [search, setSearch] = useState<string>("");
-  const [specialtyFilter, setSpecialtyFilter] = useState<number>();
 
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
+  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
+  const [professionalToDelete, setProfessionalToDelete] =
+    useState<Professional | null>(null);
+  const [deleting, setDeleting] = useState<boolean>(false);
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+
+  const FetchProfessionals = async (page: number = 1) => {
+    try {
+      setLoading(true);
+      const results = await getProfessionalList(page, 10);
+      setProfessionals(results.data);
+      setCurrentPage(results.currentPage);
+      setTotalPages(results.totalPages);
+    } catch (err) {
+      // criar alert
+      setProfessionals([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const FetchDeleteProfessional = async (id: number) => {
+    try {
+      await deleteProfessional(id);
+      await FetchProfessionals();
+    } catch (error) {
+      console.error(error);
+      // criar alert
+    }
+  };
 
   const getNestedValue = (obj: any, path: string) => {
     return path.split(".").reduce((acc, key) => acc?.[key], obj);
@@ -81,6 +97,33 @@ export default function Professionals() {
     }
   };
 
+  useEffect(() => {
+    FetchProfessionals(currentPage);
+  }, [currentPage]);
+
+  const openConfirmDelete = (professional: Professional) => {
+    setProfessionalToDelete(professional);
+    setConfirmModalOpen(true);
+  };
+
+  const closeConfirmDelete = () => {
+    if (deleting) return;
+    setConfirmModalOpen(false);
+    setProfessionalToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!professionalToDelete) return;
+    try {
+      setDeleting(true);
+      await FetchDeleteProfessional((professionalToDelete as any).id as number);
+      setConfirmModalOpen(false);
+      setProfessionalToDelete(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 gap-9">
       <div className="flex flex-col">
@@ -90,7 +133,7 @@ export default function Professionals() {
             <div className="w-full pb-3 dark:bg-[#0b0b12]">
               {!editProfessional ? (
                 <>
-                  <div className="mb-4.5 flex justify-between gap-6 border-b md:flex-row">
+                  <div className="mb-4.5 flex justify-between gap-6 border-b pb-4 md:flex-row">
                     <div className="w-full xl:w-1/2">
                       <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                         &nbsp;
@@ -103,21 +146,7 @@ export default function Professionals() {
                         onChange={(e) => setSearch(e.target.value)}
                       />
                     </div>
-                    <div className="w-full xl:w-1/2">
-                      <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                        &nbsp;
-                      </label>
-                      <Select
-                        placeholder="Selecione"
-                        selectedValue={specialtyFilter}
-                        options={[].map((e) => ({
-                          label: e.nome,
-                          value: e.id,
-                        }))}
-                        onValueChange={(value) => setSpecialtyFilter(+value)}
-                        textSelectAll="Todos as Especialidades"
-                      />
-                    </div>
+
                     <Link href="/professionals/new">
                       <button className="mt-8 flex h-12.5 items-center justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
                         <Plus />
@@ -136,7 +165,7 @@ export default function Professionals() {
                           <tr className="bg-gray-2 text-left dark:bg-meta-4">
                             {[
                               { key: "name", label: "Nome" },
-                              { key: "specialty", label: "Especialidade" },
+                              { key: "specialty.id", label: "Especialidade" },
                               { key: "contact", label: "Contato" },
                               {
                                 key: "secundaryContact",
@@ -181,18 +210,21 @@ export default function Professionals() {
                                 </td>
                                 <td className="px-5 py-3">
                                   <p className="flex items-center gap-1 font-semibold text-[#5e5eff]">
-                                    <Stethoscope size={14} />
-                                    {professional.specialty.name}
+                                    <Stethoscope size={16} />
+                                    {specialtys.find(
+                                      (s) => s.id == professional.specialty.id,
+                                    )?.name || "-"}
                                   </p>
                                 </td>
                                 <td className="px-5 py-3">
                                   {formatContact(professional.contact)}
                                 </td>
                                 <td className="px-5 py-3">
-                                  {professional.secundaryContact &&
-                                    formatContact(
-                                      professional.secundaryContact,
-                                    )}
+                                  {professional.contactSecundary
+                                    ? formatContact(
+                                        professional.contactSecundary,
+                                      )
+                                    : "-"}
                                 </td>
                                 <td className="px-5 py-3">
                                   <div className="flex items-center gap-2">
@@ -210,14 +242,24 @@ export default function Professionals() {
                                     </button>
                                   </div>
                                 </td>
-                                <td className="px-5 py-3">
+                                <td className="flex gap-2 px-5 py-3">
                                   <button
                                     className="p-1 hover:text-[#5e5eff]"
                                     onClick={() =>
                                       setEditProfessional(professional)
                                     }
+                                    aria-label={`Editar profissional ${professional.name}`}
                                   >
                                     <Pencil size={18} />
+                                  </button>
+                                  <button
+                                    className="p-1 hover:text-red-600"
+                                    onClick={() =>
+                                      openConfirmDelete(professional)
+                                    }
+                                    aria-label={`Excluir profissional ${professional.name}`}
+                                  >
+                                    <Trash size={18} />
                                   </button>
                                 </td>
                               </tr>
@@ -255,13 +297,48 @@ export default function Professionals() {
               ) : (
                 <EditProfessional
                   editProfessional={editProfessional}
-                  goBack={() => setEditProfessional(undefined)}
+                  goBack={() => {
+                    setEditProfessional(undefined);
+                    FetchProfessionals();
+                  }}
                 />
               )}
             </div>
           </div>
         </div>
       </div>
+      <Modal isOpen={confirmModalOpen} onClose={closeConfirmDelete}>
+        <div className="p-3">
+          <h3 className="mb-2 text-lg font-semibold text-black dark:text-white">
+            Confirmar exclusão
+          </h3>
+          <p className="mb-6 text-sm text-gray-700 dark:text-gray-300">
+            Tem certeza que deseja excluir o(a) profissional{" "}
+            <span className="font-medium text-black dark:text-white">
+              {professionalToDelete?.name}
+            </span>
+            ?
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={closeConfirmDelete}
+              disabled={deleting}
+              className="rounded border border-gray-300 px-4 py-2 text-sm text-black hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+              className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {deleting ? "Excluindo..." : "Excluir"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

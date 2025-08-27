@@ -98,7 +98,7 @@ export default function Patients() {
   };
 
   const closeConfirmDelete = () => {
-    if (deleting) return; // evita fechar enquanto exclui
+    if (deleting) return;
     setConfirmModalOpen(false);
     setPatientToDelete(null);
   };
@@ -280,7 +280,10 @@ export default function Patients() {
               ) : (
                 <EditPatient
                   editPatient={editPatient}
-                  goBack={() => setEditPatient(undefined)}
+                  goBack={() => {
+                    setEditPatient(undefined);
+                    FetchPatients();
+                  }}
                 />
               )}
             </div>
@@ -293,7 +296,7 @@ export default function Patients() {
             Confirmar exclusão
           </h3>
           <p className="mb-6 text-sm text-gray-700 dark:text-gray-300">
-            Tem certeza que deseja excluir o paciente{" "}
+            Tem certeza que deseja excluir o(a) paciente{" "}
             <span className="font-medium text-black dark:text-white">
               {patientToDelete?.name}
             </span>

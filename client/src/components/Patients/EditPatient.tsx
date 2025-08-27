@@ -1,11 +1,9 @@
 "use client";
 import { ChevronLeft } from "lucide-react";
 import { FormEvent, useState } from "react";
-import Select from "../SelectGroup/Select";
 import { IMaskInput } from "react-imask";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import DatePicker from "../DatePickerField";
-import TitlePage from "../Breadcrumbs/Breadcrumb";
 import { Patient } from "@/types/api";
 import { putEditPatient } from "@/services/patient";
 
@@ -117,8 +115,8 @@ export default function EditPatient({
                 </label>
                 <IMaskInput
                   mask="(00) 00000-0000"
-                  value={contact}
-                  onAccept={(v: string) => setContact(v)}
+                  value={contactSecundary}
+                  onAccept={(v: string) => setContactSecundary(v)}
                   placeholder="(00) 00000-0000"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 />
