@@ -6,31 +6,50 @@ import { IMaskInput } from "react-imask";
 import { format, parse } from "date-fns";
 import DatePicker from "../DatePickerField";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
+import { Patient } from "@/types/api";
+import { putEditPatient } from "@/services/patient";
 
 export default function EditPatient({
   editPatient,
   goBack,
 }: {
-  editPatient: any;
+  editPatient: Patient;
   goBack: () => void;
 }) {
   const [name, setName] = useState<string>(editPatient.name);
   const [cpf, setCpf] = useState<string>(editPatient.cpf);
-  const [email, setEmail] = useState<string>(editPatient.email);
+  const [birthDate, setBirthDate] = useState<Date | string | undefined>(
+    editPatient.birthDate,
+  );
   const [contact, setContact] = useState<string>(editPatient.contact);
-  const [secundaryContact, setSecundaryContact] = useState<string>(
-    editPatient.secundaryContact,
+  const [contactSecundary, setContactSecundary] = useState<string>(
+    editPatient.contactSecundary,
   );
-  const [dateBirth, setDateBirth] = useState<Date | undefined>(
-    editPatient.dateBirth
-      ? parse(editPatient.dateBirth, "dd-MM-yyyy", new Date())
-      : undefined,
-  );
+  const [email, setEmail] = useState<string>(editPatient.email);
 
   const EditPatient = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    //criar alerta
+
+    try {
+      await putEditPatient(
+        editPatient.id,
+        name.trim().toUpperCase(),
+        cpf.replace(/\D/g, ""),
+        format(birthDate || "", "yyyy-MM-dd"),
+        contact.replace(/\D/g, ""),
+        contactSecundary.replace(/\D/g, ""),
+        email.trim().toLowerCase(),
+      );
+      console.log("Paciente editado(a) com sucesso!", "success");
+      goBack();
+    } catch (error: any) {
+      //criar alerta
+      console.error(error.message || "Erro ao adicionar paciente");
+    }
   };
-  
+
   return (
     <div className="mt-5 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="p-6 xl:p-6.5">
@@ -68,11 +87,12 @@ export default function EditPatient({
               </div>
               <div className="w-full lg:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                  Data de nascimento <span className="text-meta-1">*</span>
+                  Data de nascimento
+                  <span className="text-meta-1">*</span>
                 </label>
                 <DatePicker
-                  value={dateBirth}
-                  onChange={setDateBirth}
+                  value={birthDate}
+                  onChange={(d) => setBirthDate(d)}
                   className="relative w-full"
                   inputClassName="w-full h-[50px] flex items-center gap-2 rounded border-[1.5px] border-stroke bg-transparent px-4 text-left text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 />

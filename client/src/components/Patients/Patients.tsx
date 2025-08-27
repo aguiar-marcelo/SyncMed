@@ -7,52 +7,59 @@ import {
   Copy,
   Pencil,
   Plus,
+  Trash,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ThreeDot } from "react-loading-indicators";
 import EditPatient from "./EditPatient";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
 import { formatContact, formatCPF } from "@/lib/utils";
-
-const test = [
-  {
-    name: "Cleber Barbosa",
-    cpf: "12312312345",
-    dateBirth: "22-08-2020",
-    contact: "13981651345",
-    secundaryContact: "13981651377",
-    email: "cleber.barbosa@gmail.com",
-  },
-  {
-    name: "Marcelo Santos",
-    cpf: "12312312345",
-    dateBirth: "22-08-2020",
-    contact: "13981651345",
-    secundaryContact: "13981651377",
-    email: "marcelo.santos@gmail.com",
-  },
-  {
-    name: "Marcos Barbosa",
-    cpf: "12312312345",
-    dateBirth: "22-08-2020",
-    contact: "13981651345",
-    secundaryContact: "13981651377",
-    email: "marcos.barbosa@gmail.com",
-  },
-];
+import { Patient } from "@/types/api";
+import { deletePatient, getPatientList } from "@/services/patient";
+import { format } from "date-fns";
+import { Modal } from "../Modal/page";
 
 export default function Patients() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [patients, setPatients] = useState<any[]>(test); // <-- usa o test
-  const [editPatient, setEditPatient] = useState<any | undefined>();
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [editPatient, setEditPatient] = useState<Patient | undefined>();
   const [search, setSearch] = useState<string>("");
 
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
+  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
+  const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
+  const [deleting, setDeleting] = useState<boolean>(false);
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+
+  const FetchPatients = async (page: number = 1) => {
+    try {
+      setLoading(true);
+      const results = await getPatientList(page, 10);
+      setPatients(results.data);
+      setCurrentPage(results.currentPage);
+      setTotalPages(results.totalPages);
+    } catch (err) {
+      // criar alert
+      setPatients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const FetchDeletePatient = async (id: number) => {
+    try {
+      await deletePatient(id);
+      await FetchPatients();
+    } catch (error) {
+      console.error(error);
+      // criar alert
+    }
+  };
 
   const getNestedValue = (obj: any, path: string) => {
     return path.split(".").reduce((acc, key) => acc?.[key], obj);
@@ -78,6 +85,33 @@ export default function Patients() {
     } else {
       setSortColumn(column);
       setSortDirection("asc");
+    }
+  };
+
+  useEffect(() => {
+    FetchPatients(currentPage);
+  }, [currentPage]);
+
+  const openConfirmDelete = (patient: Patient) => {
+    setPatientToDelete(patient);
+    setConfirmModalOpen(true);
+  };
+
+  const closeConfirmDelete = () => {
+    if (deleting) return; // evita fechar enquanto exclui
+    setConfirmModalOpen(false);
+    setPatientToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!patientToDelete) return;
+    try {
+      setDeleting(true);
+      await FetchDeletePatient((patientToDelete as any).id as number);
+      setConfirmModalOpen(false);
+      setPatientToDelete(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -124,10 +158,10 @@ export default function Patients() {
                             {[
                               { key: "name", label: "Nome" },
                               { key: "cpf", label: "CPF" },
-                              { key: "dateBirth", label: "Nascimento" },
+                              { key: "birthDate", label: "Nascimento" },
                               { key: "contact", label: "Contato" },
                               {
-                                key: "secundaryContact",
+                                key: "contactSecundary",
                                 label: "Contato Secundário",
                               },
                               { key: "email", label: "Email" },
@@ -169,14 +203,15 @@ export default function Patients() {
                                   {formatCPF(patient.cpf)}
                                 </td>
                                 <td className="px-5 py-3">
-                                  {patient.dateBirth}
+                                  {format(patient.birthDate, "dd/MM/yyyy")}
                                 </td>
                                 <td className="px-5 py-3">
                                   {formatContact(patient.contact)}
                                 </td>
                                 <td className="px-5 py-3">
-                                  {patient.secundaryContact &&
-                                    formatContact(patient.secundaryContact)}
+                                  {patient.contactSecundary
+                                    ? formatContact(patient.contactSecundary)
+                                    : "-"}
                                 </td>
                                 <td className="px-5 py-3">
                                   <div className="flex items-center gap-2">
@@ -194,12 +229,20 @@ export default function Patients() {
                                     </button>
                                   </div>
                                 </td>
-                                <td className="px-5 py-3">
+                                <td className="flex gap-2 px-5 py-3">
                                   <button
                                     className="p-1 hover:text-[#5e5eff]"
                                     onClick={() => setEditPatient(patient)}
+                                    aria-label={`Editar paciente ${patient.name}`}
                                   >
                                     <Pencil size={18} />
+                                  </button>
+                                  <button
+                                    className="p-1 hover:text-red-600"
+                                    onClick={() => openConfirmDelete(patient)}
+                                    aria-label={`Excluir paciente ${patient.name}`}
+                                  >
+                                    <Trash size={18} />
                                   </button>
                                 </td>
                               </tr>
@@ -244,6 +287,38 @@ export default function Patients() {
           </div>
         </div>
       </div>
+      <Modal isOpen={confirmModalOpen} onClose={closeConfirmDelete}>
+        <div className="p-3">
+          <h3 className="mb-2 text-lg font-semibold text-black dark:text-white">
+            Confirmar exclusão
+          </h3>
+          <p className="mb-6 text-sm text-gray-700 dark:text-gray-300">
+            Tem certeza que deseja excluir o paciente{" "}
+            <span className="font-medium text-black dark:text-white">
+              {patientToDelete?.name}
+            </span>
+            ?
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={closeConfirmDelete}
+              disabled={deleting}
+              className="rounded border border-gray-300 px-4 py-2 text-sm text-black hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+              className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {deleting ? "Excluindo..." : "Excluir"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

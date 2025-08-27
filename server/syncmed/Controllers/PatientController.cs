@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using syncmed.Entities;
 using syncmed.Models;
 using System.ComponentModel.DataAnnotations;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace syncmed.Controllers
 {
@@ -22,7 +22,7 @@ namespace syncmed.Controllers
         public async Task<IActionResult> GetAll()
         {
             using var sqlConnection = new SqlConnection(_connectionString);
-            const string sql = "SELECT * FROM patient";
+            const string sql = "SELECT * FROM patient ORDER BY Id DESC";
             var patients = await sqlConnection.QueryAsync<Patient>(sql);
             return Ok(patients);
         }
@@ -37,6 +37,45 @@ namespace syncmed.Controllers
             return Ok(patient);
         }
 
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged([FromQuery] int page = 1, [FromQuery] int limit = 20)
+        {
+            // saneamento básico
+            if (page < 1) page = 1;
+            if (limit < 1) limit = 20;
+
+            await using var sql = new Microsoft.Data.SqlClient.SqlConnection(_connectionString);
+
+            const string COUNT_SQL = @"SELECT COUNT(1) FROM patient";
+
+            const string DATA_SQL = @"
+            SELECT *
+            FROM patient
+            ORDER BY Id DESC
+            OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;";
+
+            var totalItems = await sql.ExecuteScalarAsync<int>(COUNT_SQL);
+
+            var data = await sql.QueryAsync<Patient>(
+                DATA_SQL,
+                new
+                {
+                    Offset = (page - 1) * limit,
+                    Limit = limit
+                });
+
+            var totalPages = totalItems == 0 ? 0 : (int)Math.Ceiling(totalItems / (double)limit);
+
+            return Ok(new
+            {
+                currentPage = page,
+                totalPages,
+                totalItems,
+                data
+            });
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PatientInputModel req)
         {
@@ -45,8 +84,8 @@ namespace syncmed.Controllers
             using var sqlConnection = new SqlConnection(_connectionString);
 
             const string insertSql = @"
-            INSERT INTO patient (Name, BirthDate, Contact, ContactSecundary, Email)
-            VALUES (@Name, @BirthDate, @Contact, @ContactSecundary, @Email);
+            INSERT INTO patient (Name, Cpf, BirthDate, Contact, ContactSecundary, Email)
+            VALUES (@Name, @Cpf, @BirthDate, @Contact, @ContactSecundary, @Email);
             SELECT CAST(SCOPE_IDENTITY() AS int);";
 
             var newId = await sqlConnection.ExecuteScalarAsync<int>(insertSql, req);
@@ -67,6 +106,7 @@ namespace syncmed.Controllers
             const string updateSql = @"
             UPDATE patient SET
                 Name = @Name,
+                Cpf = @Cpf,
                 BirthDate = @BirthDate,
                 Contact = @Contact,
                 ContactSecundary = @ContactSecundary,
@@ -77,6 +117,7 @@ namespace syncmed.Controllers
             {
                 Id = id,
                 req.Name,
+                req.Cpf,
                 req.BirthDate,
                 req.Contact,
                 req.ContactSecundary,
@@ -90,5 +131,18 @@ namespace syncmed.Controllers
 
             return Ok(updated);
         }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await using var sql = new Microsoft.Data.SqlClient.SqlConnection(_connectionString);
+
+            const string DEL = @"DELETE FROM patient WHERE Id = @Id;";
+            var affected = await sql.ExecuteAsync(DEL, new { Id = id });
+
+            if (affected == 0) return NotFound(); 
+            return NoContent();
+        }
+
     }
 }

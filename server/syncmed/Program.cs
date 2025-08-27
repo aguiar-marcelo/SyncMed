@@ -1,6 +1,11 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+const string DevCors = "DevCors";
+builder.Services.AddCors(o => o.AddPolicy(DevCors, p =>
+    p.AllowAnyOrigin()
+     .AllowAnyMethod()
+     .AllowAnyHeader()
+));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -15,6 +20,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors(DevCors);
 
 app.UseHttpsRedirection();
 

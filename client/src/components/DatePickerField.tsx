@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import { ptBR } from "date-fns/locale";
-import { format } from "date-fns";
+import { format, parse, parseISO, isValid } from "date-fns";
 import { Calendar } from "lucide-react";
 import "react-day-picker/dist/style.css";
 
 type Props = {
-  value?: Date;
-  onChange: (v?: Date) => void;
+  value?: Date | string;
+  onChange: (v?: Date | string) => void;
+  emitAs?: "date" | "string";
   disableFuture?: boolean;
   toYear?: number;
   className?: string;
@@ -17,9 +18,31 @@ type Props = {
   placeholder?: string;
 };
 
+function toDate(v?: Date | string): Date | undefined {
+  if (!v) return undefined;
+  if (v instanceof Date) return isValid(v) ? v : undefined;
+  const s = String(v).trim();
+  const iso = parseISO(s);
+  if (isValid(iso)) return iso;
+  const br = parse(s, "dd/MM/yyyy", new Date());
+  if (isValid(br)) return br;
+  const ymd = parse(s, "yyyy-MM-dd", new Date());
+  if (isValid(ymd)) return ymd;
+  return undefined;
+}
+
+function toYMDStartOfDayString(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const y = d.getFullYear();
+  const m = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  return `${y}-${m}-${day}T00:00:00`;
+}
+
 export default function DatePicker({
   value,
   onChange,
+  emitAs = "string",
   disableFuture = true,
   toYear = new Date().getFullYear(),
   className,
@@ -27,10 +50,10 @@ export default function DatePicker({
   placeholder = "dd/mm/aaaa",
 }: Props) {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Date | undefined>(value);
+  const [selected, setSelected] = useState<Date | undefined>(toDate(value));
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setSelected(value), [value]);
+  useEffect(() => setSelected(toDate(value)), [value]);
 
   useEffect(() => {
     if (!open) return;
@@ -51,7 +74,8 @@ export default function DatePicker({
 
   const handleSelect = (d?: Date) => {
     setSelected(d);
-    onChange(d);
+    if (emitAs === "date") onChange(d);
+    else onChange(d ? toYMDStartOfDayString(d) : undefined);
     if (d) setOpen(false);
   };
 
@@ -62,7 +86,7 @@ export default function DatePicker({
         onClick={() => setOpen((v) => !v)}
         className={
           inputClassName ??
-          "h-[46px] w-full rounded border-[1.5px] border-stroke bg-transparent px-5 text-left text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+          "h-[46px] w-full rounded border-[1.5px] border-stroke bg-transparent px-5 text-left text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary flex items-center gap-2"
         }
       >
         <Calendar size={17} />
@@ -84,6 +108,7 @@ export default function DatePicker({
             weekStartsOn={1}
             showOutsideDays
             captionLayout="dropdown"
+            defaultMonth={selected}
             disabled={disableFuture ? { after: new Date() } : undefined}
             style={{
               ["--rdp-accent-color" as any]: "#441b7a",
