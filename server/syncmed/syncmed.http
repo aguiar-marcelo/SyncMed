@@ -1,0 +1,6 @@
+@syncmed_HostAddress = http://localhost:5045
+
+GET {{syncmed_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
