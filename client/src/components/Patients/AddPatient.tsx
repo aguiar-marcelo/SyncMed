@@ -4,25 +4,45 @@ import Select from "../SelectGroup/Select";
 import { IMaskInput } from "react-imask";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
 import DatePicker from "../DatePickerField";
+import { postAddPatient } from "@/services/patient";
+import { format } from "date-fns";
 
 export default function AddPatient() {
   const [name, setName] = useState<string>("");
   const [cpf, setCpf] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [birthDate, setBirthDate] = useState<Date | string | undefined>();
   const [contact, setContact] = useState<string>("");
-  const [secundaryContact, setSecundaryContact] = useState<string>("");
-  const [dateBirth, setDateBirth] = useState<Date>();
+  const [contactSecundary, setContactSecundary] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
 
   const AddPatient = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    //criar alerta
+
+    try {
+      await postAddPatient(
+        name.trim().toUpperCase(),
+        cpf.replace(/\D/g, ""),
+        format(birthDate || "", "yyyy-MM-dd"),
+        contact.replace(/\D/g, ""),
+        contactSecundary.replace(/\D/g, ""),
+        email.trim().toLowerCase(),
+      );
+      console.log("Paciente adicionado(a) com sucesso!", "success");
+      cleanForm();
+    } catch (error: any) {
+      //criar alerta
+      console.error(error.message || "Erro ao adicionar paciente");
+    }
   };
 
   const cleanForm = () => {
     setName("");
     setCpf("");
     setEmail("");
-    setSecundaryContact("");
-    setDateBirth(undefined);
+    setContactSecundary("");
+    setBirthDate(undefined);
   };
 
   return (
@@ -67,8 +87,8 @@ export default function AddPatient() {
                       Data de nascimento <span className="text-meta-1">*</span>
                     </label>
                     <DatePicker
-                      value={dateBirth}
-                      onChange={setDateBirth}
+                      value={birthDate}
+                      onChange={(d) => setBirthDate(d)}
                       className="relative w-full"
                       inputClassName="w-full h-[50px] flex items-center gap-2 rounded border-[1.5px] border-stroke bg-transparent px-4 text-left text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
@@ -93,10 +113,10 @@ export default function AddPatient() {
                     </label>
                     <IMaskInput
                       mask="(00) 00000-0000"
-                      value={contact}
-                      onAccept={(v: string) => setContact(v)}
+                      value={contactSecundary}
+                      onAccept={(v: string) => setContactSecundary(v)}
                       placeholder="(00) 00000-0000"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3  text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
                   </div>
                   <div className="w-full lg:w-1/2">
@@ -105,8 +125,8 @@ export default function AddPatient() {
                     </label>
                     <input
                       type="email"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3  text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      value={name}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      value={email}
                       onChange={({ target }) =>
                         setEmail(target.value.toLocaleLowerCase())
                       }

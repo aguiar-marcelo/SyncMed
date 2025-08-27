@@ -5,6 +5,7 @@ namespace syncmed.Models
     public class PatientInputModel
     {
         [Required] public string Name { get; set; } = default!;
+        [Required] public string Cpf { get; set; } = default!;
         [Required] public DateTime BirthDate { get; set; }
         [Required] public string Contact { get; set; } = default!;
         public string? ContactSecundary { get; set; } = string.Empty;
