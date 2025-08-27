@@ -34,7 +34,7 @@ namespace syncmed.Controllers
             JOIN specialty s ON s.Id = p.IdSpecialty
             ORDER BY p.Id DESC;";
 
-            await using var db = new Microsoft.Data.SqlClient.SqlConnection(_connectionString);
+            await using var db = new SqlConnection(_connectionString);
 
             var list = await db.QueryAsync<ProfessionalOutputModel, SpecialtyDto, ProfessionalOutputModel>(
                 sql,
@@ -67,7 +67,7 @@ namespace syncmed.Controllers
             ORDER BY p.Id DESC
             OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;";
 
-            await using var db = new Microsoft.Data.SqlClient.SqlConnection(_connectionString);
+            await using var db = new SqlConnection(_connectionString);
 
             var totalItems = await db.ExecuteScalarAsync<int>(COUNT_SQL);
 
@@ -101,7 +101,7 @@ namespace syncmed.Controllers
             JOIN specialty s ON s.Id = p.IdSpecialty
             WHERE p.Id = @id;";
 
-            await using var db = new Microsoft.Data.SqlClient.SqlConnection(_connectionString);
+            await using var db = new SqlConnection(_connectionString);
 
             var item = (await db.QueryAsync<ProfessionalOutputModel, SpecialtyDto, ProfessionalOutputModel>(
                 sql,

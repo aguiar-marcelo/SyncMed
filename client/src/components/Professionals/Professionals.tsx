@@ -16,7 +16,7 @@ import { ThreeDot } from "react-loading-indicators";
 import EditProfessional from "./EditProfessional";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
 import { formatContact } from "@/lib/utils";
-import Select from "../SelectGroup/Select";
+import Select from "../Selects/Select";
 import { Professional } from "@/types/api";
 import {
   deleteProfessional,

@@ -21,3 +21,12 @@ export type Specialty = {
   id: number;
   name: string;
 };
+
+export type Schedulling = {
+  id: 1;
+  date: string;
+  hour: string;
+  obs: "string";
+  patient: Patient;
+  professional: Professional;
+};

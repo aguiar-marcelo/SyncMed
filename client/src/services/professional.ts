@@ -1,6 +1,12 @@
 import { Professional, Specialty } from "@/types/api";
 import { axiosClient as api } from "./api";
 
+export async function getProfessionals(): Promise<Professional[]> {
+  const { data } = await api.get("/Professional");
+
+  return data;
+}
+
 export async function getProfessionalList(
   page = 1,
   limit = 10,

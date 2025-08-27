@@ -1,7 +1,7 @@
 "use client";
 import { ChevronLeft } from "lucide-react";
 import { FormEvent, useState } from "react";
-import Select from "../SelectGroup/Select";
+import Select from "../Selects/Select";
 import { IMaskInput } from "react-imask";
 import { Professional } from "@/types/api";
 import { useSchedulling } from "@/contexts/SchedulingContext";
@@ -39,11 +39,11 @@ export default function EditProfessional({
         email.trim().toLowerCase(),
         specialty,
       );
-      console.log("Paciente editado(a) com sucesso!", "success");
+      console.log("Profissional editado(a) com sucesso!", "success");
       goBack();
     } catch (error: any) {
       //criar alerta
-      console.error(error.message || "Erro ao adicionar paciente");
+      console.error(error.message || "Erro ao adicionar profissional");
     }
   };
 
