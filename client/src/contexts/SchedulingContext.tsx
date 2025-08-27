@@ -6,11 +6,17 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { Specialty } from "@/types/api";
-import { getSpecialtys } from "@/services/professional";
+import { Patient, Professional, Specialty } from "@/types/api";
+import { getProfessionals, getSpecialtys } from "@/services/professional";
+import { getPatients } from "@/services/patient";
+import { getSchedullingsAllDates } from "@/services/schedulling";
 
 interface SchedullingContextData {
   specialtys: Specialty[];
+  professionals: Professional[];
+  patients: Patient[];
+  schedullingsAllDates: string[];
+  FetchSchedullingsAllDates: () => Promise<void>;
 }
 
 const SchedullingContext = createContext<SchedullingContextData | undefined>(
@@ -19,19 +25,44 @@ const SchedullingContext = createContext<SchedullingContextData | undefined>(
 
 export const SchedullingProvider = ({ children }: { children: ReactNode }) => {
   const [specialtys, setSpecialtys] = useState<Specialty[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [schedullingsAllDates, setSchedullingsAllDates] = useState<string[]>(
+    [],
+  );
 
   const FetchProducts = async () => {
     const response = await getSpecialtys();
     setSpecialtys(response);
   };
+  const FetchProfessionals = async () => {
+    const response = await getProfessionals();
+    setProfessionals(response);
+  };
+  const FetchPatients = async () => {
+    const response = await getPatients();
+    setPatients(response);
+  };
+  const FetchSchedullingsAllDates = async () => {
+    const response = await getSchedullingsAllDates();
+    setSchedullingsAllDates(response);
+  };
+
   useEffect(() => {
     FetchProducts();
+    FetchProfessionals();
+    FetchPatients();
+    FetchSchedullingsAllDates();
   }, []);
 
   return (
     <SchedullingContext.Provider
       value={{
         specialtys,
+        professionals,
+        patients,
+        schedullingsAllDates,
+        FetchSchedullingsAllDates,
       }}
     >
       {children}

@@ -1,6 +1,12 @@
 import { Patient } from "@/types/api";
 import { axiosClient as api } from "./api";
 
+export async function getPatients(): Promise<Patient[]> {
+  const { data } = await api.get("/Patient");
+
+  return data;
+}
+
 export async function getPatientList(
   page = 1,
   limit = 10,

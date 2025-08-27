@@ -29,6 +29,21 @@ CREATE TABLE professional (
 
 CREATE INDEX IX_professional_idSpecialty ON dbo.[professional](idSpecialty);
 
+CREATE TABLE schedulling (
+    id             INT IDENTITY(1,1) PRIMARY KEY,
+    [date]         DATE NOT NULL,
+    [hour]         TIME(0) NOT NULL, 
+    idPatient      INT NOT NULL,
+    idProfessional INT NOT NULL,
+    obs            NVARCHAR(500) NULL,
+    
+    CONSTRAINT FK_schedulling_patient
+        FOREIGN KEY (idPatient) REFERENCES dbo.patient(id),
+    CONSTRAINT FK_schedulling_professional
+        FOREIGN KEY (idProfessional) REFERENCES dbo.professional(id)
+);
+
+
 
 -- INSERT DE DADOS
 

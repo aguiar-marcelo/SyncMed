@@ -1,9 +1,10 @@
 "use client";
-import { FormEvent, useState, useEffect, ChangeEvent } from "react";
-import Select from "../SelectGroup/Select";
+import { FormEvent, useState } from "react";
+import Select from "../Selects/Select";
 import { IMaskInput } from "react-imask";
 import TitlePage from "../Breadcrumbs/Breadcrumb";
 import { useSchedulling } from "@/contexts/SchedulingContext";
+import { postAddProfessional } from "@/services/professional";
 
 export default function AddProfessional() {
   const [name, setName] = useState<string>("");
@@ -15,6 +16,25 @@ export default function AddProfessional() {
 
   const AddProfessional = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!specialty) return;
+
+    //criar alerta
+
+    try {
+      await postAddProfessional(
+        name.trim().toUpperCase(),
+        contact.replace(/\D/g, ""),
+        contactSecundary.replace(/\D/g, ""),
+        email.trim().toLowerCase(),
+        specialty,
+      );
+      console.log("Profissional editado(a) com sucesso!", "success");
+      cleanForm();
+    } catch (error: any) {
+      //criar alerta
+      console.error(error.message || "Erro ao adicionar profissional");
+    }
   };
 
   const cleanForm = () => {
