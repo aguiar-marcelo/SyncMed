@@ -31,7 +31,7 @@ sqlcmd -S .\SQLEXPRESS -E -Q "ALTER SERVER ROLE sysadmin ADD MEMBER [SEU_USUARIO
 🔗 Endpoints disponíveis via **Swagger** (provavelmente):  
 [https://localhost:8443/swagger/index.html](https://localhost:8443/swagger/index.html)
 
-💡 Caso o backend não conecte com o banco de dados, alter a `ConnectionStrings`, dentro de: `appsettings.json`
+💡 Caso o backend não conecte com o banco de dados, altere a `ConnectionStrings`, dentro de: `appsettings.json`
 
 ```
   "ConnectionStrings": {
@@ -53,3 +53,7 @@ npm run dev
 ```
 
 💡 Caso o backend rode em um porta diferente, altere no `.env` a variável: `NEXT_PUBLIC_API_URL`
+
+```
+ NEXT_PUBLIC_API_URL=http://localhost:{URL_PORT}
+````
