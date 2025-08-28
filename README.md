@@ -14,6 +14,13 @@ Segue o script SQL para criação:
 CREATE DATABASE syncmed;
 GO
 ```
+
+-- Caso nao tenha permissao para criar a base de dados, isso pode ajudar
+-abra o cmd com administrador:
+
+```
+sqlcmd -S .\SQLEXPRESS -E -Q "ALTER SERVER ROLE sysadmin ADD MEMBER [SEU_USUARIO_SQL]"
+```
 - Após criar o banco rode o **script.sql** que esta na raiz do repositório.
 
 ## 🚀 Como rodar o Back-end
