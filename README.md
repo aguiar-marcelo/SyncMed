@@ -21,7 +21,7 @@ GO
 ```
 sqlcmd -S .\SQLEXPRESS -E -Q "ALTER SERVER ROLE sysadmin ADD MEMBER [SEU_USUARIO_SQL]"
 ```
-- Após criar o banco rode o **script.sql** que esta na raiz do repositório.
+- Após criar o banco rode o `script.sql` que esta na raiz do repositório.
 
 ## 🚀 Como rodar o Back-end
 
@@ -30,6 +30,14 @@ sqlcmd -S .\SQLEXPRESS -E -Q "ALTER SERVER ROLE sysadmin ADD MEMBER [SEU_USUARIO
 
 🔗 Endpoints disponíveis via **Swagger** (provavelmente):  
 [https://localhost:8443/swagger/index.html](https://localhost:8443/swagger/index.html)
+
+💡 Caso o backend não conecte com o banco de dados, alter a `ConnectionStrings`, dentro de: `appsettings.json`
+
+```
+  "ConnectionStrings": {
+    "syncmed": "Data Source=host.docker.internal,1433;Initial Catalog=syncmed;User ID=admin;Password=admin;Encrypt=True;TrustServerCertificate=True"
+  },
+````
 
 ---
 
@@ -42,3 +50,6 @@ cd client
 npm i
 npm run build
 npm run dev
+```
+
+💡 Caso o backend rode em um porta diferente, altere no `.env` a variável: `NEXT_PUBLIC_API_URL`
