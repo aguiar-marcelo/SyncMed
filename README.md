@@ -39,6 +39,15 @@ sqlcmd -S .\SQLEXPRESS -E -Q "ALTER SERVER ROLE sysadmin ADD MEMBER [SEU_USUARIO
   },
 ````
 
+➕ Dentro do **Swagger** crie um usuario para acessar o sistema, no endpoint **/api/Auth/register**
+
+```
+ {
+  "email": "usuario@email.com",
+  "password": "SuaSenha123"
+ }
+````
+
 ---
 
 ## 💻 Como rodar o Front-end
@@ -49,7 +58,7 @@ Na raiz do projeto:
 cd client
 npm i
 npm run build
-npm run dev
+npm run start
 ```
 
 💡 Caso o backend rode em um porta diferente, altere no `.env` a variável: `NEXT_PUBLIC_API_URL`
