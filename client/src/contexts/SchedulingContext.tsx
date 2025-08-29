@@ -51,12 +51,10 @@ export const SchedullingProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    if (accessToken) {
-      FetchProducts();
-      FetchProfessionals();
-      FetchPatients();
-      FetchSchedullingsAllDates();
-    }
+    FetchProducts();
+    FetchProfessionals();
+    FetchPatients();
+    FetchSchedullingsAllDates();
   }, []);
 
   return (

@@ -24,3 +24,8 @@ export const formatContact = (phone: string): string => {
     return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
   }
 };
+
+export const validateEmail = (email: string) => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email);
+};

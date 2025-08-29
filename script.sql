@@ -16,7 +16,7 @@ CREATE TABLE patient (
     id               INT IDENTITY(1,1) PRIMARY KEY,
     [name]           NVARCHAR(120) NOT NULL,
     cpf              VARCHAR(11)   NOT NULL UNIQUE,
-    dateBirth        DATE          NOT NULL,
+    birthDate        DATE          NOT NULL,
     contact          VARCHAR(15)   NULL,
     contactSecundary VARCHAR(15)   NULL,
     email            NVARCHAR(254) NULL
@@ -59,7 +59,7 @@ CREATE TABLE schedulling (
 
 -- INSERT DE DADOS
 
-INSERT INTO patient ([name], cpf, dateBirth, contact, contactSecundary, email) VALUES
+INSERT INTO patient ([name], cpf, birthDate, contact, contactSecundary, email) VALUES
 ( N'João Silva',              '12345678901', '1988-05-12', '11987654321', NULL,               N'joao.silva@example.com'),
 ( N'Ana Júlia Santos',        '98765432100', '1995-11-03', '21988776655', '21999887766',      N'ana.julia.santos@example.com'),
 ( N'Lucas Rodrigues',         '32165498700', '1990-03-23', '11991234567', NULL,               N'lucas.rodrigues@example.com'),
@@ -125,7 +125,7 @@ BEGIN
 END
 
 
-INSERT INTO dbo.professional ([name], contact, contactSecundary, email, id_specialty) VALUES
+INSERT INTO dbo.professional ([name], contact, contactSecundary, email, idSpecialty) VALUES
 (N'João Silva',             '11960010001', NULL,               N'joao.silva@exemplo.com',            1),
 (N'Ana Júlia Santos',      '11960010002', '11960020002',      N'ana.julia@exemplo.com',             2),
 (N'Lucas Rodrigues',        '11960010003', NULL,               N'lucas.rodrigues@exemplo.com',       3),

@@ -175,6 +175,13 @@ export default function Schedule() {
                       ))}
                     </tbody>
                   </table>
+                    {schedullingsByDate.length == 0 && (
+                      <>
+                        <div className="text-center mb-3 bg-white">
+                          Nenhuma consulta encontrada
+                        </div>
+                      </>
+                    )}
                 </div>
               )}
             </div>

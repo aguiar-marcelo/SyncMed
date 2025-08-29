@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const rt = Cookies.get("refreshToken");
       if (!rt) throw new Error("Sem refresh token");
-      const res = await fetch(`${apiBaseUrl}/Auth/refresh`, {
+      const res = await fetch(`${apiBaseUrl}/api/Auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken: rt }),
@@ -175,7 +175,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     setError(null);
     try {
-      const res = await fetch(`${apiBaseUrl}/Auth/login`, {
+      const res = await fetch(`${apiBaseUrl}/api/Auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

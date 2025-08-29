@@ -19,6 +19,7 @@ import { Patient } from "@/types/api";
 import { deletePatient, getPatientList } from "@/services/patient";
 import { format } from "date-fns";
 import { Modal } from "../Modal/page";
+import { showAlert } from "../Alert/page";
 
 export default function Patients() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -55,7 +56,7 @@ export default function Patients() {
       setCurrentPage(results.currentPage);
       setTotalPages(results.totalPages);
     } catch {
-      // criar alert
+      showAlert("Erro ao buscar pacientes!", "error");
       setPatients([]);
     } finally {
       setLoading(false);
@@ -65,11 +66,10 @@ export default function Patients() {
   const FetchDeletePatient = async (id: number) => {
     try {
       await deletePatient(id);
+      showAlert("Paciente excluido(a) com sucesso!", "success");
       await FetchPatients();
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      showAlert("Erro ao excluir paciente!", "error");
     }
   };
 

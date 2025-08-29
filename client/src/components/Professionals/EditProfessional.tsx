@@ -6,6 +6,8 @@ import { IMaskInput } from "react-imask";
 import { Professional } from "@/types/api";
 import { useSchedulling } from "@/contexts/SchedulingContext";
 import { putEditProfessional } from "@/services/professional";
+import { showAlert } from "../Alert/page";
+import { validateEmail } from "@/lib/utils";
 
 export default function EditProfessional({
   editProfessional,
@@ -20,7 +22,7 @@ export default function EditProfessional({
   );
   const [contact, setContact] = useState<string>(editProfessional.contact);
   const [contactSecundary, setContactSecundary] = useState<string>(
-    editProfessional.contactSecundary,
+    editProfessional.contactSecundary || "",
   );
   const [email, setEmail] = useState<string>(editProfessional.email);
   const { specialtys } = useSchedulling();
@@ -28,7 +30,22 @@ export default function EditProfessional({
   const EditProfessional = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    //criar alerta
+    if (!name.trim()) {
+      showAlert("Digite o nome!", "warning");
+      return;
+    }
+    if (!contact.trim()) {
+      showAlert("Digite o contato principal!", "warning");
+      return;
+    }
+    if (!validateEmail(email)) {
+      showAlert("Digite um email valido!", "warning");
+      return;
+    }
+    if (!specialty) {
+      showAlert("Selecione uma especialidade!", "warning");
+      return;
+    }
 
     try {
       await putEditProfessional(
@@ -39,12 +56,11 @@ export default function EditProfessional({
         email.trim().toLowerCase(),
         specialty,
       );
-      console.log("Profissional editado(a) com sucesso!", "success");
+      showAlert("Profissional editado(a) com sucesso!", "success");
       goBack();
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      showAlert("Erro ao editar profissional!", "error");
+      console.error(error);
     }
   };
 

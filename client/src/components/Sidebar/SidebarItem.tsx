@@ -60,7 +60,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       >
         <span>{item.icon}</span>
         {isItemActive && (
-          <span className="absolute left-[-7] h-[100%] rounded-xl border-6 border-primary bg-primary"></span>
+          <span
+            style={{ left: -6, position: "absolute" }}
+            className="absolute left-[-6] h-[100%] rounded-xl border-6 border-primary bg-primary"
+          ></span>
         )}
         {sidebarHover && (
           <>
