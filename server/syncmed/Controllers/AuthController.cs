@@ -51,15 +51,14 @@ namespace syncmed.Controllers
                     Email = email,
                     Hash = hash,
                     Salt = salt,
-                    Role = string.IsNullOrWhiteSpace(req.Role) ? "user" : req.Role!.Trim()
+                    Role = "user"
                 });
 
                 var created = await db.QuerySingleAsync<dynamic>(SEL, new { Id = newId });
 
-                // 201 Created com Location relativo (não expomos GET /api/users/{id}, mas deixo a URL prevista)
                 return Created($"/api/users/{newId}", created);
             }
-            catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601) // unique index/constraint
+            catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601) 
             {
                 return Conflict(new { error = "Email already registered." });
             }
@@ -158,7 +157,6 @@ namespace syncmed.Controllers
             });
         }
 
-        // (Opcional) POST /api/auth/logout  -> invalida refresh
         [HttpPost("logout")]
         public async Task<IActionResult> Logout([FromBody] RefreshRequest req)
         {
