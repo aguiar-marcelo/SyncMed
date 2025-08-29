@@ -1,3 +1,4 @@
+"use client"
 import type { Metadata } from "next";
 import {
   Geist,
@@ -9,6 +10,7 @@ import {
 import "@/css/style.css";
 import { SchedullingProvider } from "@/contexts/SchedulingContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SnackbarProvider } from "notistack";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,11 +41,6 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "",
-  description: "",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -52,9 +49,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${montserrat.variable} antialiased [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 [&::-webkit-scrollbar]:w-2`}
       >
-        <AuthProvider>
-          <SchedullingProvider>{children}</SchedullingProvider>
-        </AuthProvider>
+        <SnackbarProvider
+          maxSnack={3}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          autoHideDuration={5000}
+        >
+          <AuthProvider>
+            <SchedullingProvider>{children}</SchedullingProvider>
+          </AuthProvider>
+        </SnackbarProvider>
       </body>
     </html>
   );

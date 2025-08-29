@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import DatePicker from "../DatePickerField";
 import { Patient } from "@/types/api";
 import { putEditPatient } from "@/services/patient";
+import { showAlert } from "../Alert/page";
+import { validateEmail } from "@/lib/utils";
 
 export default function EditPatient({
   editPatient,
@@ -28,7 +30,26 @@ export default function EditPatient({
   const EditPatient = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    //criar alerta
+    if (!name.trim()) {
+      showAlert("Digite o nome!", "warning");
+      return;
+    }
+    if (cpf.replace(/\D/g, "").length < 11) {
+      showAlert("Digite Cpf completo!", "warning");
+      return;
+    }
+    if (!birthDate) {
+      showAlert("Selecione a data de nascimento!", "warning");
+      return;
+    }
+    if (!contact.trim()) {
+      showAlert("Digite o contato principal!", "warning");
+      return;
+    }
+    if (!validateEmail(email)) {
+      showAlert("Digite um email valido!", "warning");
+      return;
+    }
 
     try {
       await putEditPatient(
@@ -40,14 +61,11 @@ export default function EditPatient({
         contactSecundary.replace(/\D/g, ""),
         email.trim().toLowerCase(),
       );
-      console.log("Paciente editado(a) com sucesso!", "success");
+      showAlert("Paciente editado(a) com sucesso!", "success");
       goBack();
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      } else {
-        console.error("Erro ao adicionar paciente");
-      }
+      showAlert("Erro ao editar paciente!", "error");
+      console.error(error);
     }
   };
 

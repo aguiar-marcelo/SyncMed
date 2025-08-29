@@ -64,5 +64,5 @@ npm run start
 💡 Caso o backend rode em um porta diferente, altere no `.env` a variável: `NEXT_PUBLIC_API_URL`
 
 ```
- NEXT_PUBLIC_API_URL=http://localhost:{URL_PORT}
+ NEXT_PUBLIC_API_URL=https://localhost:{URL_PORT}
 ````

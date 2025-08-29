@@ -23,6 +23,7 @@ import {
 } from "@/services/professional";
 import { Modal } from "../Modal/page";
 import { useSchedulling } from "@/contexts/SchedulingContext";
+import { showAlert } from "../Alert/page";
 
 export default function Professionals() {
   const { specialtys } = useSchedulling();
@@ -42,7 +43,7 @@ export default function Professionals() {
     { key: "email", label: "Email" },
   ] as const;
 
-  type SortableKeys = typeof columns[number]["key"];
+  type SortableKeys = (typeof columns)[number]["key"];
 
   const [sortColumn, setSortColumn] = useState<SortableKeys | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -63,9 +64,7 @@ export default function Professionals() {
       setCurrentPage(results.currentPage);
       setTotalPages(results.totalPages);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      showAlert("Erro ao buscar profissionais!", "error");
       setProfessionals([]);
     } finally {
       setLoading(false);
@@ -75,11 +74,10 @@ export default function Professionals() {
   const FetchDeleteProfessional = async (id: number) => {
     try {
       await deleteProfessional(id);
+      showAlert("Profissional excluido(a) com sucesso!", "error");
       await FetchProfessionals();
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      showAlert("Erro ao excluir profissional!", "error");
     }
   };
 

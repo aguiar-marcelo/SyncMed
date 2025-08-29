@@ -5,6 +5,8 @@ import TitlePage from "../Breadcrumbs/Breadcrumb";
 import DatePicker from "../DatePickerField";
 import { postAddPatient } from "@/services/patient";
 import { format } from "date-fns";
+import { showAlert } from "../Alert/page";
+import { validateEmail } from "@/lib/utils";
 
 export default function AddPatient() {
   const [name, setName] = useState<string>("");
@@ -17,7 +19,26 @@ export default function AddPatient() {
   const AddPatient = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    //criar alerta
+    if (!name.trim()) {
+      showAlert("Digite o nome!", "warning");
+      return;
+    }
+    if (cpf.replace(/\D/g, "").length < 11) {
+      showAlert("Digite Cpf completo!", "warning");
+      return;
+    }
+    if (!birthDate) {
+      showAlert("Selecione a data de nascimento!", "warning");
+      return;
+    }
+    if (!contact.trim()) {
+      showAlert("Digite o contato principal!", "warning");
+      return;
+    }
+    if (!validateEmail(email)) {
+      showAlert("Digite um email valido!", "warning");
+      return;
+    }
 
     try {
       await postAddPatient(
@@ -28,14 +49,10 @@ export default function AddPatient() {
         contactSecundary.replace(/\D/g, ""),
         email.trim().toLowerCase(),
       );
-      console.log("Paciente adicionado(a) com sucesso!", "success");
+      showAlert("Paciente adicionado(a) com sucesso!", "success");
       cleanForm();
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      } else {
-        console.error("Erro ao adicionar paciente");
-      }
+      showAlert("Erro ao adicionar paciente", "error");
     }
   };
 
