@@ -39,7 +39,7 @@ export const Modal: React.FC<ModalProps> = ({
       window.removeEventListener("keydown", close);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [onClose, closeOnClickOutside]); // ✅ Agora inclui closeOnClickOutside
+  }, [onClose, closeOnClickOutside]);
 
   if (!isOpen) return null;
 

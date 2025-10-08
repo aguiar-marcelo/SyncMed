@@ -116,11 +116,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(DevCors);
-
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseCors(DevCors);
 
 app.UseAuthentication();
 app.UseAuthorization();

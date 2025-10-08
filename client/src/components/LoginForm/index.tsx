@@ -65,7 +65,7 @@ export default function LoginForm() {
               required
             />
             <span
-              className="absolute right-4 top-9 cursor-pointer text-[#962ef7]"
+              className="absolute right-4 top-9 cursor-pointer text-primary"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff size="20" /> : <Eye size="20" />}

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  database:
+    container_name: sql_server_db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "SuaSenhaSegura123!"
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+    restart: always
+
+  api:
+    container_name: syncmed_api
+    build:
+      context: ./server/syncmed
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=database;Database=syncmed;User Id=sa;Password=SuaSenhaSegura123!;TrustServerCertificate=true"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    depends_on:
+      - database
+    restart: always
+
+  client:
+    container_name: syncmed_client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3000" # Mapeia a porta da sua máquina (3001) para a porta do contêiner (3000)
+    depends_on:
+      - api # Garante que a API esteja rodando antes do cliente
+    restart: always
