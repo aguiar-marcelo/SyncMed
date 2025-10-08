@@ -26,15 +26,15 @@ export default function LoginForm() {
       <div className="">
         <div>
           <Image
-            src="/images/logo-roxo.png"
-            alt="Logo konex"
+            src="/images/logo.png"
+            alt="Logo"
             width="500"
             height="500"
-            className="w-35"
+            className="w-45 mt-[10%]"
           />
         </div>
-        <form onSubmit={login} className="mt-[18%]">
-          <span className="font-montserrat text-lg font-semibold text-black-2 lg:text-[1.7rem]">
+        <form onSubmit={login} className="mt-[10%]">
+          <span className="font-montserrat text-lg font-semibold text-black-2 lg:text-[1.4rem]">
             Login
           </span>
           <div className="relative mt-6 text-left">

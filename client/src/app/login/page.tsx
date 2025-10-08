@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function Login() {
   return (
     <div className="flex h-dvh w-full">
-      <div className="linear-to-bl h-full w-3/5 bg-gradient-to-r from-violet-500 to-primary">
+      <div className="linear-to-bl h-full w-3/5 bg-gradient-to-r from-primary to-[#7bcf0eb2] bg-primary">
         <DotGridIcon
           color="#ffffff50"
           size="5vw"
